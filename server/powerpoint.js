@@ -1,11 +1,11 @@
 'use strict';
-// Einheitliche Schnittstelle zur PowerPoint-Steuerung, unabhängig vom Betriebssystem.
+// Shared interface for controlling PowerPoint across operating systems.
 
-// Simulierte Präsentation für Tests ohne PowerPoint
+// Simulated presentation for testing without PowerPoint.
 function createMock() {
   const m = { state: 'idle', slide: 1, total: 10, blank: false };
   return {
-    // Die Demo hält dieselbe Statusform wie die Plattform-Implementierungen bereit.
+    // The demo exposes the same status shape as the platform implementations.
     next: async () => { if (m.state === 'running') m.slide = Math.min(m.total, m.slide + 1); },
     prev: async () => { if (m.state === 'running') m.slide = Math.max(1, m.slide - 1); },
     start: async () => { m.state = 'running'; m.slide = 1; m.blank = false; },
@@ -15,23 +15,23 @@ function createMock() {
   };
 }
 
-// Passendes Plattform-Modul wählen
+// Select the implementation for the current platform.
 function loadPlatform() {
   if (process.env.POWERPOINTER_MOCK) return { name: 'Demo-Modus', impl: createMock() };
   if (process.platform === 'darwin') return { name: 'macOS', impl: require('./platforms/macos') };
   if (process.platform === 'win32') return { name: 'Windows', impl: require('./platforms/windows') };
-  // Auf anderen Systemen bleibt der Server mit der Simulation nutzbar.
+  // Keep the server usable with the simulator on other operating systems.
   console.warn('Nicht unterstütztes Betriebssystem – starte im Demo-Modus.');
   return { name: 'Demo-Modus', impl: createMock() };
 }
 
 const { name: platformName, impl } = loadPlatform();
 
-// Nur diese Befehle dürfen von Clients ausgelöst werden.
+// Only these commands can be triggered by clients.
 const COMMANDS = ['next', 'prev', 'start', 'stop', 'blank'];
 
 async function run(command) {
-  // Allowlist verhindert, dass beliebige Methoden der Plattform-Implementierung aufgerufen werden.
+  // Prevent clients from invoking arbitrary methods on the platform implementation.
   if (!COMMANDS.includes(command)) throw new Error('Unbekannter Befehl');
   await impl[command]();
 }

@@ -2,12 +2,12 @@
 const { execFile } = require('child_process');
 
 const APP = 'Microsoft PowerPoint';
-// AppleScript spricht das erste PowerPoint-Fenster für die Bildschirmpräsentation an.
+// Use AppleScript to address the first PowerPoint slide show window.
 const VIEW = 'slide show view of slide show window 1';
 
 function osa(script) {
   return new Promise((resolve, reject) => {
-    // Ein Zeitlimit verhindert, dass ein nicht antwortender PowerPoint-Prozess den Server blockiert.
+    // Set a timeout so an unresponsive PowerPoint process cannot block the server.
     execFile('osascript', ['-e', script], { timeout: 8000 }, (err, stdout, stderr) => {
       if (err) return reject(new Error((stderr || err.message).trim()));
       resolve(stdout.trim());
@@ -23,7 +23,7 @@ module.exports = {
   start: () => tell(`run slide show (slide show settings of active presentation)`),
   stop: () => tell(`exit slide show (${VIEW})`),
   blank: () => tell(
-    // Zwischen schwarzem Bildschirm und laufender Präsentation umschalten.
+    // Toggle between a black screen and the running presentation.
     `set v to ${VIEW}\n` +
     `if state of v is slide show state black screen then\n` +
     `set state of v to slide show state running\nelse\n` +
@@ -31,7 +31,7 @@ module.exports = {
   ),
   async status() {
     const out = await osa(
-      // Statusfelder werden als kompakte, per | getrennte Zeichenkette zurückgegeben.
+      // Return status fields as a compact pipe-delimited string.
       `if application "${APP}" is not running then return "off|0|0|0"\n` +
       `tell application "${APP}"\n` +
       `if (count of presentations) = 0 then return "idle|0|0|0"\n` +
@@ -44,7 +44,7 @@ module.exports = {
       `return "running|" & idx & "|" & total & "|" & blk\n` +
       `end tell`
     );
-    // Das Textprotokoll in die einheitliche Statusstruktur für den Server umwandeln.
+    // Convert the text response into the shared status structure used by the server.
     const [state, idx, total, blk] = out.split('|');
     return { state, slide: +idx, total: +total, blank: blk === '1' };
   }

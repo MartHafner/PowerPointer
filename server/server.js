@@ -8,7 +8,7 @@ const { WebSocketServer } = require('ws');
 const { getLocalAddresses, isLocalClient } = require('./network');
 const powerpoint = require('./powerpoint');
 
-// QR-Code im Terminal (optional: ohne das Paket läuft der Server trotzdem)
+// Terminal QR code (optional; the server still works if the package is unavailable).
 let qrcode = null;
 try { qrcode = require('qrcode-terminal'); } catch {}
 
@@ -30,7 +30,7 @@ const MIME = {
   '.json': 'application/json; charset=utf-8'
 };
 
-// ---------- HTTP: statische Weboberfläche ----------
+// ---------- HTTP: static web interface ----------
 const server = http.createServer((req, res) => {
   if (!isLocalClient(req.socket.remoteAddress)) {
     res.writeHead(403).end('Nur im lokalen Netzwerk erreichbar.');
@@ -45,7 +45,7 @@ const server = http.createServer((req, res) => {
   catch { res.writeHead(400).end(); return; }
   if (urlPath === '/') urlPath = '/index.html';
   const file = path.normalize(path.join(PUBLIC_DIR, urlPath));
-  // Verhindert, dass Pfade wie „../…“ Dateien außerhalb der Weboberfläche erreichen.
+  // Prevent paths such as "../..." from accessing files outside the web interface.
   if (!file.startsWith(PUBLIC_DIR + path.sep)) {
     res.writeHead(403).end();
     return;
@@ -64,12 +64,12 @@ const server = http.createServer((req, res) => {
   });
 });
 
-// ---------- WebSocket: Befehle & Status ----------
+// ---------- WebSocket: commands and status ----------
 const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
 
 function safeEqual(a, b) {
   const ba = Buffer.from(a), bb = Buffer.from(b);
-  // Erst gleiche Länge prüfen, damit timingSafeEqual sicher aufgerufen werden kann.
+  // Check lengths first because timingSafeEqual requires buffers of equal length.
   return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
 }
 
@@ -79,7 +79,7 @@ server.on('upgrade', (req, socket, head) => {
   if (url.pathname !== '/ws') return socket.destroy();
   const authorized = !PIN || safeEqual(url.searchParams.get('pin') || '', PIN);
   wss.handleUpgrade(req, socket, head, (ws) => {
-    // Die Verbindung wird erst nach dem WebSocket-Handshake mit Fehlercode abgewiesen.
+    // Reject the connection with a close code after completing the WebSocket handshake.
     if (!authorized) return ws.close(4001, 'PIN erforderlich');
     wss.emit('connection', ws);
   });
@@ -94,16 +94,16 @@ function broadcast() {
 }
 
 async function poll() {
-  // Überspringt überlappende Abfragen, falls PowerPoint langsamer als das Polling ist.
+  // Skip overlapping requests if PowerPoint responds more slowly than the polling interval.
   if (polling) return;
   polling = true;
   try {
     const s = await powerpoint.getStatus();
     const running = s.state === 'running';
-    // Startzeit während derselben laufenden Präsentation beibehalten.
+    // Preserve the start time while the same presentation remains active.
     const startedAt = running ? (state.startedAt || Date.now()) : null;
     const next = { connected: true, ...s, startedAt, error: null };
-    // Nur das Vorhandensein der Startzeit vergleichen; ihr Millisekundenwert ändert sich nicht.
+    // Compare whether a start time exists; its millisecond value itself does not change.
     const changed = JSON.stringify({ ...next, startedAt: !!startedAt }) !==
                     JSON.stringify({ ...state, startedAt: !!state.startedAt });
     state = next;
@@ -143,7 +143,7 @@ server.listen(PORT, HOST, () => {
   const addrs = getLocalAddresses();
   if (!addrs.length) console.log(`  http://localhost:${PORT}  (keine Netzwerkadresse gefunden)`);
   for (const a of addrs) console.log(`  http://${a.address}:${PORT}   (${a.name})`);
-  // QR-Code für die erste (bevorzugt private) Adresse, zum Scannen mit der iPhone-Kamera
+  // Generate a QR code for the first (preferably private) address to scan with the iPhone camera.
   if (qrcode && addrs.length) {
     console.log(`\nOder QR-Code mit der iPhone-Kamera scannen (${addrs[0].address}):\n`);
     qrcode.generate(`http://${addrs[0].address}:${PORT}`, { small: true });

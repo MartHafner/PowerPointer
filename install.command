@@ -1,11 +1,11 @@
 #!/bin/bash
-# PowerPointer – Installation (macOS). Doppelklick genügt.
+# PowerPointer installer for macOS. Double-click to run.
 cd "$(dirname "$0")" || exit 1
 pause() { read -n 1 -s -r -p "Beliebige Taste zum Beenden …"; echo; }
 
 echo "=== PowerPointer – Installation ==="
 
-# 1. Node.js prüfen
+# 1. Check for Node.js
 if ! command -v node >/dev/null 2>&1; then
   echo "Node.js wurde nicht gefunden (benötigt: Version 18 oder neuer)."
   echo "Bitte installieren: https://nodejs.org  oder  brew install node"
@@ -19,7 +19,7 @@ if [ "$MAJOR" -lt 18 ]; then
 fi
 echo "Node.js $(node -v) gefunden."
 
-# 2. Abhängigkeiten installieren
+# 2. Install dependencies
 echo "Installiere Abhängigkeiten …"
 if ! npm install --no-audit --no-fund; then
   echo "Installation fehlgeschlagen. Bitte Meldung oben prüfen."
