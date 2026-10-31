@@ -4,6 +4,7 @@
   const els = {
     dot: $('dot'), connText: $('connText'), slide: $('slide'), total: $('total'),
     timer: $('timer'), status: $('status'), startStop: $('startStop'), blank: $('blank'),
+    notes: $('notes'),
     pinDialog: $('pinDialog'), pinForm: $('pinForm'), pinInput: $('pinInput'), toast: $('toast')
   };
 
@@ -65,6 +66,12 @@
     els.blank.classList.toggle('on', running && state.blank);
     els.blank.textContent = state.blank ? 'Bildschirm einblenden' : 'Bildschirm ausblenden';
     document.querySelectorAll('.nav .btn').forEach((b) => (b.disabled = !running));
+
+    // textContent (not innerHTML): notes may contain arbitrary text.
+    const note = running ? (state.notes || '').trim() : '';
+    els.notes.textContent = note || (running ? 'Keine Notizen zu dieser Folie.' : '');
+    els.notes.classList.toggle('empty', !note);
+    els.notes.scrollTop = 0;
 
     let text = 'PowerPoint nicht erreichbar';
     if (state.connected) {

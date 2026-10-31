@@ -85,12 +85,17 @@ server.on('upgrade', (req, socket, head) => {
   });
 });
 
-let state = { connected: false, state: 'off', slide: 0, total: 0, blank: false, startedAt: null, error: null };
+let state = { connected: false, state: 'off', slide: 0, total: 0, blank: false, notes: '', startedAt: null, error: null };
 let polling = false;
 
 function broadcast() {
   const msg = JSON.stringify({ type: 'state', data: state, serverTime: Date.now() });
   for (const ws of wss.clients) if (ws.readyState === 1) ws.send(msg);
+}
+
+// Notes must never break the status poll.
+async function loadNotes() {
+  try { return await powerpoint.getNotes(); } catch { return ''; }
 }
 
 async function poll() {
@@ -102,7 +107,13 @@ async function poll() {
     const running = s.state === 'running';
     // Preserve the start time while the same presentation remains active.
     const startedAt = running ? (state.startedAt || Date.now()) : null;
-    const next = { connected: true, ...s, startedAt, error: null };
+    // Only query the notes when the slide changed or the show just started.
+    let notes = '';
+    if (running) {
+      const slideChanged = s.slide !== state.slide || state.state !== 'running';
+      notes = slideChanged ? await loadNotes() : state.notes;
+    }
+    const next = { connected: true, ...s, notes, startedAt, error: null };
     // Compare whether a start time exists; its millisecond value itself does not change.
     const changed = JSON.stringify({ ...next, startedAt: !!startedAt }) !==
                     JSON.stringify({ ...state, startedAt: !!state.startedAt });

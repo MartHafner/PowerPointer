@@ -11,7 +11,8 @@ function createMock() {
     start: async () => { m.state = 'running'; m.slide = 1; m.blank = false; },
     stop: async () => { m.state = 'idle'; m.blank = false; },
     blank: async () => { if (m.state === 'running') m.blank = !m.blank; },
-    status: async () => ({ ...m })
+    status: async () => ({ ...m }),
+    notes: async () => `Demo-Notiz zu Folie ${m.slide}\nZweite Zeile der Notiz.`
   };
 }
 
@@ -37,5 +38,6 @@ async function run(command) {
 }
 
 const getStatus = () => impl.status();
+const getNotes = () => impl.notes();
 
-module.exports = { run, getStatus, platformName, COMMANDS };
+module.exports = { run, getStatus, getNotes, platformName, COMMANDS };

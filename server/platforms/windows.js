@@ -1,18 +1,21 @@
 'use strict';
 const { execFile } = require('child_process');
 
-// Get the running PowerPoint instance; return a valid "off" status if it is unavailable.
-const PRELUDE =
+// Get the running PowerPoint instance; return a valid fallback output if it is unavailable.
+const prelude = (offOutput) =>
   `$ErrorActionPreference='Stop';` +
   `try { $ppt=[Runtime.InteropServices.Marshal]::GetActiveObject('PowerPoint.Application') } ` +
-  `catch { Write-Output '{"state":"off","slide":0,"total":0,"blank":false}'; exit 0 };`;
+  `catch { Write-Output '${offOutput}'; exit 0 };`;
 
-function ps(body) {
+const OFF_STATUS = '{"state":"off","slide":0,"total":0,"blank":false}';
+const OFF_NOTES = '{"notes":""}';
+
+function ps(body, offOutput = OFF_STATUS) {
   return new Promise((resolve, reject) => {
     execFile(
       'powershell.exe',
       // Skip the PowerShell profile and set a timeout so a stalled COM call cannot block the server.
-      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', PRELUDE + body],
+      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', prelude(offOutput) + body],
       { timeout: 10000, windowsHide: true },
       (err, stdout, stderr) => {
         if (err) return reject(new Error((stderr || err.message).trim()));
@@ -43,5 +46,20 @@ module.exports = {
       `([pscustomobject]@{state='running';slide=[int]$v.CurrentShowPosition;total=$total;blank=($v.State -eq 3)}|ConvertTo-Json -Compress)`
     );
     return JSON.parse(out);
+  },
+  // Speaker notes of the slide currently shown in the slide show ('' if none).
+  async notes() {
+    const out = await ps(
+      `if($ppt.SlideShowWindows.Count -eq 0){Write-Output '${OFF_NOTES}';exit 0};` +
+      `$s=$ppt.SlideShowWindows.Item(1).View.Slide;` +
+      `$t='';` +
+      `foreach($sh in $s.NotesPage.Shapes){` +
+      // Type 14 = placeholder; PlaceholderFormat.Type 2 = notes body text.
+      `if($sh.Type -eq 14 -and $sh.PlaceholderFormat.Type -eq 2 -and $sh.HasTextFrame){$t=$sh.TextFrame.TextRange.Text}};` +
+      `([pscustomobject]@{notes=$t}|ConvertTo-Json -Compress)`,
+      OFF_NOTES
+    );
+    // PowerPoint separates paragraphs with \r; normalize for the browser.
+    return JSON.parse(out).notes.replace(/\r\n?|\u000b/g, '\n');
   }
 };

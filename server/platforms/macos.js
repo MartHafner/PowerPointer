@@ -47,5 +47,17 @@ module.exports = {
     // Convert the text response into the shared status structure used by the server.
     const [state, idx, total, blk] = out.split('|');
     return { state, slide: +idx, total: +total, blank: blk === '1' };
+  },
+  // Speaker notes of the current slide ('' if none).
+  async notes() {
+    const out = await tell(
+      `set s to slide of ${VIEW}\n` +
+      `repeat with sh in shapes of notes page of s\n` +
+      `if placeholder type of placeholder format of sh is placeholder type body then\n` +
+      `return content of text range of text frame of sh\n` +
+      `end if\nend repeat\nreturn ""`
+    );
+    // PowerPoint separates paragraphs with \r and soft breaks with \u000b.
+    return out.replace(/\r\n?|\u000b/g, '\n');
   }
 };
