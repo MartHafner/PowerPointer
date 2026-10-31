@@ -1,0 +1,13 @@
+{
+  "name": "powerpointer",
+  "version": "0.1.0",
+  "description": "Die lokale PowerPoint-Fernbedienung für iPhone, macOS und Windows.",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "POWERPOINTER_MOCK=1 node server/server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": { "ws": "^8.18.0" },
+  "license": "UNLICENSED"
+}
