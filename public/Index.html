@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f1115">
+  <title>PowerPointer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">PowerPointer</div>
+    <div class="conn"><span id="dot" class="dot"></span><span id="connText">Verbinde …</span></div>
+  </header>
+
+  <main>
+    <section class="info">
+      <div class="slide"><span id="slide">–</span><small>/ <span id="total">–</span></small></div>
+      <div class="timer" id="timer">00:00</div>
+      <div class="status" id="status">Nicht verbunden</div>
+    </section>
+
+    <section class="nav">
+      <button class="btn prev" data-cmd="prev" aria-label="Vorherige Folie">‹<span>Zurück</span></button>
+      <button class="btn next" data-cmd="next" aria-label="Nächste Folie">›<span>Weiter</span></button>
+    </section>
+
+    <section class="actions">
+      <button class="btn small" id="startStop" data-cmd="start">Starten</button>
+      <button class="btn small" id="blank" data-cmd="blank">Bildschirm ausblenden</button>
+    </section>
+  </main>
+
+  <div id="pinDialog" class="dialog" hidden>
+    <form id="pinForm">
+      <h2>Verbindungscode</h2>
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+      <button class="btn small" type="submit">Verbinden</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
