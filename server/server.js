@@ -45,6 +45,7 @@ const server = http.createServer((req, res) => {
   catch { res.writeHead(400).end(); return; }
   if (urlPath === '/') urlPath = '/index.html';
   const file = path.normalize(path.join(PUBLIC_DIR, urlPath));
+  // Verhindert, dass Pfade wie „../…“ Dateien außerhalb der Weboberfläche erreichen.
   if (!file.startsWith(PUBLIC_DIR + path.sep)) {
     res.writeHead(403).end();
     return;
@@ -68,6 +69,7 @@ const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
 
 function safeEqual(a, b) {
   const ba = Buffer.from(a), bb = Buffer.from(b);
+  // Erst gleiche Länge prüfen, damit timingSafeEqual sicher aufgerufen werden kann.
   return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
 }
 
@@ -77,6 +79,7 @@ server.on('upgrade', (req, socket, head) => {
   if (url.pathname !== '/ws') return socket.destroy();
   const authorized = !PIN || safeEqual(url.searchParams.get('pin') || '', PIN);
   wss.handleUpgrade(req, socket, head, (ws) => {
+    // Die Verbindung wird erst nach dem WebSocket-Handshake mit Fehlercode abgewiesen.
     if (!authorized) return ws.close(4001, 'PIN erforderlich');
     wss.emit('connection', ws);
   });
@@ -91,13 +94,16 @@ function broadcast() {
 }
 
 async function poll() {
+  // Überspringt überlappende Abfragen, falls PowerPoint langsamer als das Polling ist.
   if (polling) return;
   polling = true;
   try {
     const s = await powerpoint.getStatus();
     const running = s.state === 'running';
+    // Startzeit während derselben laufenden Präsentation beibehalten.
     const startedAt = running ? (state.startedAt || Date.now()) : null;
     const next = { connected: true, ...s, startedAt, error: null };
+    // Nur das Vorhandensein der Startzeit vergleichen; ihr Millisekundenwert ändert sich nicht.
     const changed = JSON.stringify({ ...next, startedAt: !!startedAt }) !==
                     JSON.stringify({ ...state, startedAt: !!state.startedAt });
     state = next;

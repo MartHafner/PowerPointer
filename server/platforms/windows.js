@@ -1,6 +1,7 @@
 'use strict';
 const { execFile } = require('child_process');
 
+// Holt die laufende PowerPoint-Instanz; fehlt sie, liefert der Aufruf einen gültigen „aus“-Status.
 const PRELUDE =
   `$ErrorActionPreference='Stop';` +
   `try { $ppt=[Runtime.InteropServices.Marshal]::GetActiveObject('PowerPoint.Application') } ` +
@@ -10,6 +11,7 @@ function ps(body) {
   return new Promise((resolve, reject) => {
     execFile(
       'powershell.exe',
+      // PowerShell ohne Profil starten und begrenzen, damit ein hängender COM-Aufruf nicht blockiert.
       ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-Command', PRELUDE + body],
       { timeout: 10000, windowsHide: true },
       (err, stdout, stderr) => {
@@ -20,6 +22,7 @@ function ps(body) {
   });
 }
 
+// Für Navigationsbefehle wird das erste geöffnete Bildschirmpräsentationsfenster verwendet.
 const WIN = `$w=$ppt.SlideShowWindows.Item(1);`;
 
 module.exports = {
@@ -31,6 +34,7 @@ module.exports = {
   blank: () => ps(`${WIN}if($w.View.State -eq 3){$w.View.State=1}else{$w.View.State=3}`),
   async status() {
     const out = await ps(
+      // Ohne Präsentation bzw. ohne gestartete Bildschirmpräsentation gibt es keine aktive Folie.
       `if($ppt.Presentations.Count -eq 0){Write-Output '{"state":"idle","slide":0,"total":0,"blank":false}';exit 0};` +
       `$total=$ppt.ActivePresentation.Slides.Count;` +
       `if($ppt.SlideShowWindows.Count -eq 0){` +
