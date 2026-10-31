@@ -1,334 +1,232 @@
 # PowerPointer
 
-**Die lokale PowerPoint-Fernbedienung für iPhone, macOS und Windows.**
-
-PowerPointer ermöglicht es, eine Microsoft-PowerPoint-Präsentation bequem über ein iPhone zu steuern. Dazu wird auf dem Computer ein lokaler Server gestartet, der eine browserbasierte Fernbedienung bereitstellt.
-
-Das iPhone verbindet sich über ein lokales Netzwerk mit diesem Server. Über eine speziell entwickelte Weboberfläche können Präsentationen gesteuert und relevante Informationen wie die aktuelle Foliennummer oder die Präsentationsdauer angezeigt werden.
-
-Eine Internetverbindung oder eine Installation einer zusätzlichen App auf dem iPhone ist nicht erforderlich.
-
----
+PowerPointer verwandelt ein iPhone oder einen anderen Browser in eine lokale Fernbedienung für Microsoft PowerPoint. Der Node.js-Server läuft auf dem Computer mit PowerPoint; das Mobilgerät öffnet die vom Server angezeigte Adresse im Browser. Eine zusätzliche App oder Cloud-Verbindung ist nicht erforderlich.
 
 ## Inhaltsverzeichnis
 
-- [Projektübersicht](#projektübersicht)
-- [Ziel des Projekts](#ziel-des-projekts)
-- [Funktionsweise](#funktionsweise)
-- [Systemarchitektur](#systemarchitektur)
 - [Funktionen](#funktionen)
-- [Netzwerk und Verbindung](#netzwerk-und-verbindung)
-- [Technologie](#technologie)
+- [Voraussetzungen](#voraussetzungen)
+- [Projekt von GitHub herunterladen und installieren](#projekt-von-github-herunterladen-und-installieren)
+  - [Anhängigkeiten](#anhängigkeiten)
+  - [Windows](#windows)
+  - [macOS](#macos)
+  - [Alternative: ZIP-Datei herunterladen](#alternative-zip-datei-herunterladen)
+  - [Mit dem iPhone verbinden und Server beenden](#mit-dem-iphone-verbinden-und-server-beenden)
+- [PowerPoint-Berechtigungen](#powerpoint-berechtigungen)
+- [Bedienung](#bedienung)
+- [Konfiguration](#konfiguration)
+  - [Demo-Modus](#demo-modus)
+- [Netzwerk und Sicherheit](#netzwerk-und-sicherheit)
 - [Projektstruktur](#projektstruktur)
-- [Installation und Einrichtung](#installation-und-einrichtung)
-- [Sicherheit](#sicherheit)
-- [Geplante Erweiterungen](#geplante-erweiterungen)
-
----
-
-## Projektübersicht
-
-PowerPointer ist eine plattformübergreifende Fernbedienung für Microsoft PowerPoint.
-
-Das Projekt verfolgt das Ziel, ein Smartphone als drahtlose Fernbedienung für Präsentationen einzusetzen, ohne auf externe Cloud-Dienste oder kostenpflichtige Anwendungen angewiesen zu sein.
-
-Die Anwendung besteht aus zwei Hauptkomponenten:
-
-1. **PowerPointer Server:** Eine lokale Anwendung, die auf dem Computer ausgeführt wird und die Kommunikation mit Microsoft PowerPoint übernimmt.
-2. **PowerPointer Webinterface:** Eine für Smartphones optimierte Website, über die der Benutzer die Präsentation bedienen kann.
-
-Der Server soll sowohl unter macOS als auch unter Windows funktionieren.
-
-## Ziel des Projekts
-
-PowerPointer soll eine einfache, zuverlässige und lokal funktionierende Möglichkeit bieten, PowerPoint-Präsentationen mit einem iPhone zu steuern.
-
-Dabei stehen folgende Ziele im Vordergrund:
-
-- Plattformübergreifende Unterstützung von macOS und Windows.
-- Bedienung über den Webbrowser des iPhones.
-- Keine zusätzliche iPhone-App erforderlich.
-- Keine Internetverbindung erforderlich.
-- Kommunikation ausschließlich über das lokale Netzwerk.
-- Echtzeitübertragung von Steuerbefehlen und Statusinformationen.
-- Moderne und übersichtliche Benutzeroberfläche.
-
-## Funktionsweise
-
-Die Kommunikation zwischen iPhone und Computer erfolgt über ein lokales Netzwerk.
-
-Der Computer stellt einen Node.js-Server bereit, der gleichzeitig die Weboberfläche ausliefert und die Steuerbefehle des iPhones verarbeitet.
-
-### Ablauf einer Verbindung
-
-1. Der Benutzer startet PowerPointer auf seinem Computer.
-2. Der Computer startet den lokalen Server.
-3. Der Server stellt die Weboberfläche im Netzwerk bereit.
-4. Das iPhone verbindet sich mit demselben Netzwerk wie der Computer.
-5. Der Benutzer öffnet die angezeigte lokale IP-Adresse im Safari-Browser.
-6. Die Weboberfläche wird geladen und verbindet sich mit dem Server.
-7. Steuerbefehle werden an den Server übertragen.
-8. Der Server führt die entsprechenden Aktionen in Microsoft PowerPoint aus.
-9. Statusinformationen werden an das iPhone zurückgesendet.
-
-**Beispiel:**
-
-Der Benutzer drückt auf dem iPhone die Schaltfläche „Nächste Folie“.
-
-- Das iPhone sendet einen Steuerbefehl.
-- Der Server empfängt den Befehl.
-- Die plattformspezifische Steuerung führt die entsprechende Aktion in PowerPoint aus.
-- Die Präsentation wechselt zur nächsten Folie.
-- Der Server aktualisiert die Statusinformationen auf dem iPhone.
-
-### Vereinfachte Darstellung
-
-```text
-      PC (PowerPoint) ---> Lokaler Server (PC) ----> Iphone (Web-Controller)
-```
-
-## Systemarchitektur
-
-PowerPointer ist modular aufgebaut.
-
-Dadurch können die Netzwerkkommunikation, die Benutzeroberfläche und die eigentliche PowerPoint-Steuerung unabhängig voneinander entwickelt und erweitert werden.
-
-### 1. Webinterface
-
-Das Webinterface ist die Benutzeroberfläche von PowerPointer.
-
-Es wird direkt vom lokalen Server bereitgestellt und kann über jeden kompatiblen Browser aufgerufen werden.
-
-Die Oberfläche ist insbesondere für die Bedienung auf einem iPhone optimiert.
-
-### 2. Lokaler Server
-
-Der Server bildet die zentrale Schnittstelle zwischen dem Smartphone und dem Computer.
-
-Seine Aufgaben:
-
-- Bereitstellung der lokalen Website.
-- Empfang und Verarbeitung von Steuerbefehlen.
-- Verwaltung der Client-Verbindungen.
-- Kommunikation mit der PowerPoint-Schnittstelle.
-- Übertragung von Statusinformationen.
-
-### 3. Plattform-Schnittstelle
-
-Da macOS und Windows unterschiedliche Möglichkeiten zur Steuerung von Anwendungen bereitstellen, erfolgt die PowerPoint-Steuerung über plattformspezifische Module.
-
-**macOS:**
-- Steuerung beispielsweise über AppleScript und macOS-Systemfunktionen.
-- Erforderliche Berechtigungen für die Automatisierung.
-
-**Windows:**
-- Steuerung beispielsweise über PowerShell, COM-Automatisierung oder geeignete Windows-Schnittstellen.
-
-Beide Plattformen verwenden dieselbe grundlegende Steuerungslogik.
+- [Lizenz](#lizenz)
 
 ## Funktionen
 
-Der geplante Funktionsumfang umfasst folgende Bereiche:
+- Präsentation starten und beenden
+- Zur vorherigen oder nächsten Folie wechseln
+- Bildschirm der Präsentation schwarz schalten und wieder einblenden
+- Aktuelle Folie, Folienanzahl und Laufzeit anzeigen
+- Verbindung und PowerPoint-Status anzeigen
+- Eingaben über Touch, Tastatur oder Bluetooth-Klicker
+- Optionaler PIN zum Schutz der WebSocket-Steuerverbindung
+- Demo-Modus, der PowerPoint durch eine simulierte Präsentation ersetzt
 
-| Funktion | Beschreibung |
+## Voraussetzungen
+
+- Node.js 18 oder neuer und npm
+- Microsoft PowerPoint für die tatsächliche Präsentationssteuerung
+- Computer und Mobilgerät im selben lokalen Netzwerk
+- macOS oder Windows für die plattformspezifische PowerPoint-Steuerung
+
+PowerPointer kann auch ohne PowerPoint im Demo-Modus gestartet werden. Auf anderen Betriebssystemen verwendet der Server automatisch diesen Modus.
+
+## Projekt von GitHub herunterladen und installieren
+
+### Anhängigkeiten
+
+- **Node.js 18 oder neuer**, einschließlich npm. Lade die aktuelle LTS-Version von [nodejs.org](https://nodejs.org/) herunter und installiere sie.
+- **Git**, wenn du das Repository mit dem `git clone`-Befehl herunterladen möchtest. Git gibt es auf [git-scm.com](https://git-scm.com/downloads).
+- Microsoft PowerPoint für die tatsächliche Präsentationssteuerung.
+- Computer und Mobilgerät im selben lokalen Netzwerk.
+
+Nach der Installation kannst du prüfen, ob Node.js und npm verfügbar sind:
+
+```sh
+node --version
+npm --version
+```
+
+Beide Befehle sollten Versionsnummern ausgeben. Falls nicht, schließe das Terminal und öffne es erneut. Wenn die Befehle weiterhin nicht gefunden werden, überprüfe die Node.js-Installation.
+
+### Windows
+
+1. Installiere Node.js 18 oder neuer und Git (siehe Voraussetzungen).
+2. Öffne **PowerShell**.
+3. Wechsle in den Ordner, in dem das Projekt liegen soll, und klone das Repository:
+
+   ```powershell
+   cd $HOME\Documents
+   git clone https://github.com/MartHafner/PowerPointer.git
+   cd PowerPointer
+   ```
+
+4. Installiere die festgelegten Projektabhängigkeiten:
+
+   ```powershell
+   npm ci
+   ```
+
+5. Starte den Server:
+
+   ```powershell
+   npm start
+   ```
+
+6. Lass das PowerShell-Fenster geöffnet. Der Server zeigt eine oder mehrere lokale Adressen an. Öffne eine davon auf dem iPhone im Safari-Browser.
+
+### macOS
+
+1. Installiere Node.js 18 oder neuer. Git ist oft bereits vorhanden; falls macOS danach fragt, installiere die angebotenen Xcode Command Line Tools.
+2. Öffne **Terminal**.
+3. Wechsle in den gewünschten Speicherort und klone das Repository:
+
+   ```sh
+   cd ~/Documents
+   git clone https://github.com/MartHafner/PowerPointer.git
+   cd PowerPointer
+   ```
+
+4. Installiere die Projektabhängigkeiten:
+
+   ```sh
+   npm ci
+   ```
+
+5. Starte den Server:
+
+   ```sh
+   npm start
+   ```
+
+   Alternativ kann das mitgelieferte Skript `./install.command` zur Installation verwendet werden. Es installiert die Abhängigkeiten und bietet an, den Server direkt zu starten.
+
+6. Lass das Terminal geöffnet. Öffne eine der vom Server angezeigten lokalen Adressen auf dem iPhone im Safari-Browser.
+
+### Alternative: ZIP-Datei herunterladen
+
+Du kannst das Projekt auch ohne Git herunterladen:
+
+1. Öffne die [PowerPointer-Projektseite auf GitHub](https://github.com/MartHafner/PowerPointer).
+2. Wähle **Code** und anschließend **Download ZIP**.
+3. Entpacke die heruntergeladene ZIP-Datei an einen Speicherort deiner Wahl.
+4. Öffne ein Terminal (macOS) oder PowerShell (Windows) im entpackten Projektordner. Der Ordner enthält die Datei `package.json`.
+5. Führe dort die folgenden Befehle aus:
+
+   ```sh
+   npm ci
+   npm start
+   ```
+
+   In PowerShell funktionieren dieselben Befehle.
+
+### Mit dem iPhone verbinden und Server beenden
+
+Der Computer zeigt nach dem Start erreichbare Netzwerkadressen an und, sofern verfügbar, einen QR-Code im Terminal. Verbinde iPhone und Computer mit demselben lokalen Netzwerk und öffne eine der angezeigten Adressen, zum Beispiel `http://192.168.1.23:8787`, in Safari. Wenn die Seite nicht erreichbar ist, erlaube Node.js in der Firewall den Zugriff auf das private Netzwerk.
+
+Beende den Server über `Ctrl+C` im Terminal beziehungsweise PowerShell-Fenster, in dem er läuft.
+
+### PowerPoint-Berechtigungen
+
+- **macOS:** Erlaube der Anwendung, von der aus Node.js gestartet wurde (zum Beispiel Terminal), PowerPoint unter „Datenschutz & Sicherheit“ → „Automation“ zu steuern.
+- **Windows:** PowerPoint muss installiert und gestartet werden können. PowerPointer steuert die laufende PowerPoint-Instanz über PowerShell und COM-Automatisierung.
+
+## Bedienung
+
+Die Schaltflächen steuern die Präsentation. Während sie läuft, zeigt die Oberfläche die aktuelle Folie, die Gesamtzahl der Folien und die Laufzeit an.
+
+Tastaturbelegung:
+
+| Taste | Aktion |
 |---|---|
-| Nächste Folie | Wechselt zur nächsten Folie. |
-| Vorherige Folie | Wechselt zur vorherigen Folie. |
-| Präsentation starten | Startet die PowerPoint-Präsentation. |
-| Präsentation beenden | Beendet den Präsentationsmodus. |
-| Folienanzeige | Zeigt die aktuelle Foliennummer an. |
-| Gesamtfolien | Zeigt die Anzahl aller Folien an. |
-| Präsentationstimer | Zeigt die bisherige Präsentationsdauer an. |
-| Verbindungsstatus | Zeigt den Verbindungszustand zwischen iPhone und Server. |
-| Bildschirm ausblenden | Ermöglicht einen schwarzen Präsentationsbildschirm. |
+| Pfeil rechts, Bild ab oder Leertaste | Nächste Folie |
+| Pfeil links oder Bild auf | Vorherige Folie |
+| `b` oder `.` | Bildschirm schwarz schalten bzw. wieder einblenden |
 
-Die tatsächliche Verfügbarkeit einzelner Funktionen hängt von der jeweiligen PowerPoint-Schnittstelle und dem Betriebssystem ab.
+Der Server prüft den PowerPoint-Status standardmäßig einmal pro Sekunde. Nach einem Verbindungsverlust versucht die Weboberfläche automatisch, die Verbindung wiederherzustellen.
 
-## Netzwerk und Verbindung
+## Konfiguration
 
-PowerPointer ist für den lokalen Betrieb konzipiert.
+Die Einstellungen stehen in [`config/settings.json`](config/settings.json):
 
-Es gibt zwei vorgesehene Verbindungsmöglichkeiten:
+| Einstellung | Standardwert | Bedeutung |
+|---|---:|---|
+| `port` | `8787` | HTTP- und WebSocket-Port |
+| `host` | `0.0.0.0` | Netzwerkadresse, an der der Server lauscht |
+| `pin` | `""` | Optionaler Verbindungscode; leer bedeutet: kein PIN |
+| `pollIntervalMs` | `1000` | Abstand zwischen PowerPoint-Statusabfragen in Millisekunden |
 
-### 1. Eigenes WLAN
+`PORT` überschreibt den konfigurierten Port; `POWERPOINTER_PIN` überschreibt den konfigurierten PIN. Beispiel für PowerShell:
 
-Der Computer erstellt beziehungsweise stellt ein eigenes WLAN bereit.
-
-Das iPhone verbindet sich direkt mit diesem Netzwerk.
-
-Anschließend kann die lokale Website über die IP-Adresse des Computers aufgerufen werden.
-
-Beispiel:
-
-```text
-http://192.168.137.1:8787
-```
-
-### 2. Bestehendes WLAN
-
-Alternativ können Computer und iPhone mit demselben bestehenden WLAN verbunden werden.
-
-Der Server erkennt seine lokale IP-Adresse und stellt die Weboberfläche über diese Adresse bereit.
-
-### Keine Internetverbindung erforderlich
-
-Die gesamte Kommunikation zwischen iPhone und Computer findet innerhalb des lokalen Netzwerks statt.
-
-PowerPointer benötigt für seine grundlegenden Funktionen:
-
-- Keine Cloud-Verbindung.
-- Kein Benutzerkonto.
-- Keine externe Serverinfrastruktur.
-- Keine Internetverbindung.
-
-## Technologie
-
-Für die Entwicklung sind folgende Technologien vorgesehen:
-
-| Technologie | Verwendung |
-|---|---|
-| Node.js | Lokaler Server |
-| JavaScript | Anwendungslogik |
-| HTML | Struktur der Weboberfläche |
-| CSS | Gestaltung und responsives Design |
-| WebSocket | Echtzeitkommunikation |
-| HTTP | Bereitstellung der Website |
-| AppleScript | macOS-Integration |
-| PowerShell / COM | Windows-Integration |
-
-Die konkrete technische Umsetzung kann im Laufe der Entwicklung erweitert oder angepasst werden.
-
-## Projektstruktur
-
-Die vorgesehene Projektstruktur:
-
-```text
-PowerPointer/
-│
-├── server/
-│   ├── server.js
-│   ├── network.js
-│   ├── powerpoint.js
-│   │
-│   └── platforms/
-│       ├── macos.js
-│       └── windows.js
-│
-├── public/
-│   ├── index.html
-│   ├── style.css
-│   └── app.js
-│
-├── config/
-│   └── settings.json
-│
-├── package.json
-└── README.md
-```
-
-**Erläuterung:**
-
-- `server.js`: Startet und verwaltet den lokalen Server.
-- `network.js`: Übernimmt die Netzwerkerkennung und Verbindung.
-- `powerpoint.js`: Stellt eine einheitliche Schnittstelle zur Steuerung bereit.
-- `macos.js`: Enthält die Steuerungsfunktionen für macOS.
-- `windows.js`: Enthält die Steuerungsfunktionen für Windows.
-- `index.html`: Enthält die Struktur der Fernbedienung.
-- `style.css`: Definiert das Design.
-- `app.js`: Verarbeitet Benutzereingaben und Serverkommunikation.
-- `settings.json`: Enthält anpassbare Einstellungen.
-
-## Installation und Einrichtung
-
-### Voraussetzungen
-
-- Ein Computer mit macOS oder Windows.
-- Installiertes Node.js.
-- Installiertes Microsoft PowerPoint.
-- Ein iPhone mit einem aktuellen Webbrowser.
-- Eine lokale Netzwerkverbindung zwischen beiden Geräten.
-
-### Installation
-
-Repository herunterladen oder klonen:
-
-```bash
-git clone https://github.com/DEIN-USERNAME/PowerPointer.git
-```
-
-In das Projektverzeichnis wechseln:
-
-```bash
-cd PowerPointer
-```
-
-Abhängigkeiten installieren:
-
-```bash
-npm install
-```
-
-Server starten:
-
-```bash
+```powershell
+$env:POWERPOINTER_PIN = "1234"
 npm start
 ```
 
-Anschließend wird die lokale Adresse des Servers angezeigt.
+Beim ersten Verbindungsversuch fragt die Weboberfläche nach dem PIN. Er wird für die Sitzung des Browser-Tabs gespeichert.
 
-Diese Adresse kann im Safari-Browser des iPhones geöffnet werden.
+### Demo-Modus
 
-*Hinweis: Die Befehle setzen voraus, dass die entsprechenden Startskripte und Projektdateien eingerichtet sind.*
+Der Demo-Modus simuliert eine Präsentation mit zehn Folien. Auf macOS und Windows lässt er sich über die Umgebungsvariable `POWERPOINTER_MOCK` aktivieren:
 
-## Sicherheit
+```sh
+POWERPOINTER_MOCK=1 npm start
+```
 
-PowerPointer ist für die Nutzung innerhalb eines vertrauenswürdigen lokalen Netzwerks vorgesehen.
+In PowerShell:
 
-Da der Server Steuerbefehle an PowerPoint weitergeben kann, sollte der Zugriff entsprechend geschützt werden.
+```powershell
+$env:POWERPOINTER_MOCK = "1"
+npm start
+```
 
-Geplante Sicherheitsmaßnahmen:
+Das Skript `npm run dev` aktiviert denselben Modus auf Shells, die die Unix-Schreibweise für Umgebungsvariablen unterstützen.
 
-- Beschränkung auf lokale Netzwerkverbindungen.
-- Keine unnötige Freigabe des Servers ins Internet.
-- Absicherung der Steuerbefehle.
-- Optionaler Verbindungscode zwischen iPhone und Computer.
-- Validierung eingehender Anfragen.
-- Begrenzung der erlaubten Steuerbefehle.
+## Netzwerk und Sicherheit
 
-Der Server sollte nicht ungeschützt über das öffentliche Internet erreichbar sein.
+Die Weboberfläche und die Steuerverbindung sind für ein vertrauenswürdiges lokales Netzwerk vorgesehen. Der Server weist Verbindungen von nicht-lokalen IP-Adressen ab. Ohne konfigurierten PIN kann jeder Client im erlaubten Netzwerk die Präsentation steuern.
 
-## Geplante Erweiterungen
+Ein PIN schützt die WebSocket-Steuerverbindung, verschlüsselt die Verbindung aber nicht. PowerPointer verwendet standardmäßig HTTP und WebSocket ohne TLS. Leite den Serverport daher nicht ins öffentliche Internet weiter und verwende PowerPointer nur in Netzwerken, denen du vertraust.
 
-PowerPointer soll langfristig um weitere Funktionen ergänzt werden.
+## Projektstruktur
 
-Mögliche Erweiterungen:
+```text
+PowerPointer/
+├── config/
+│   └── settings.json
+├── public/
+│   ├── App.js
+│   ├── Index.html
+│   └── Style.css
+├── server/
+│   ├── platforms/
+│   │   ├── macos.js
+│   │   └── windows.js
+│   ├── network.js
+│   ├── powerpoint.js
+│   └── server.js
+├── install.command
+├── package.json
+└── package-lock.json
+```
 
-- Direkte Auswahl bestimmter Folien.
-- Anzeige von Präsentationsnotizen.
-- Anzeige einer Folienvorschau.
-- Erweiterte Präsentationsstatistiken.
-- Mehrere verbundene Fernbedienungen.
-- Automatische Netzwerkerkennung.
-- Automatische Erkennung laufender PowerPoint-Präsentationen.
-- Erweiterte Timer- und Erinnerungsfunktionen.
-- Individuelle Gestaltung der Fernbedienung.
-
----
-
-## Projektstatus
-
-**PowerPointer befindet sich in der Entwicklung.**
-
-Ziel ist eine stabile, plattformübergreifende und vollständig lokal arbeitende PowerPoint-Fernbedienung.
-
-Die endgültige Funktionsverfügbarkeit und die Unterstützung der einzelnen Betriebssysteme werden im Verlauf der Entwicklung umgesetzt und getestet.
-
----
+- `server/server.js` stellt die Weboberfläche bereit und verwaltet HTTP-, WebSocket- und Statusverbindungen.
+- `server/network.js` ermittelt lokale IPv4-Adressen und prüft, ob ein Client aus einem lokalen Netz kommt.
+- `server/powerpoint.js` stellt die gemeinsame Befehlsschnittstelle und den Demo-Modus bereit.
+- `server/platforms/` enthält die PowerPoint-Steuerung über AppleScript (macOS) beziehungsweise PowerShell/COM (Windows).
+- `public/` enthält die Bedienoberfläche.
+- `config/settings.json` enthält die Servereinstellungen.
+- `install.command` ist ein macOS-Installationsskript; der Server kann anschließend mit `npm start` gestartet werden.
 
 ## Lizenz
 
-Die Lizenzbedingungen werden im weiteren Projektverlauf festgelegt.
-
----
-
-**PowerPointer – Your presentation. Your control.**
+Dieses Projekt steht unter der [MIT-Lizenz](LICENSE).
