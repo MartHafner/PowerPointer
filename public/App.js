@@ -15,7 +15,7 @@
     // Match the WebSocket protocol to the page protocol to preserve transport security.
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     ws = new WebSocket(`${proto}://${location.host}/ws?pin=${encodeURIComponent(pin)}`);
-    ws.onopen = () => { retry = 0; setConn('ok', 'Verbunden'); };
+    ws.onopen = () => { retry = 0; setConn('ok', 'Connected'); };
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if (msg.type === 'state') {
@@ -30,12 +30,12 @@
     ws.onclose = (e) => {
       if (e.code === 4001) {
         sessionStorage.removeItem('pp-pin');
-        setConn('bad', 'PIN erforderlich');
+        setConn('bad', 'PIN required');
         els.pinDialog.hidden = false;
         els.pinInput.focus();
         return;
       }
-      setConn('bad', 'Getrennt');
+      setConn('bad', 'Disconnected');
       // Retry transient connection failures with an increasing delay.
       setTimeout(connect, Math.min(5000, 500 * 2 ** retry++));
     };
@@ -59,27 +59,27 @@
     // Update the controls and slide display to match the current presentation status.
     els.slide.textContent = running ? state.slide : '–';
     els.total.textContent = state.total || '–';
-    els.startStop.textContent = running ? 'Beenden' : 'Starten';
+    els.startStop.textContent = running ? 'Stop' : 'Start';
     els.startStop.dataset.cmd = running ? 'stop' : 'start';
     els.startStop.classList.toggle('stop', running);
     els.blank.disabled = !running;
     els.blank.classList.toggle('on', running && state.blank);
-    els.blank.textContent = state.blank ? 'Bildschirm einblenden' : 'Bildschirm ausblenden';
+    els.blank.textContent = state.blank ? 'Show Screen' : 'Hide Screen';
     document.querySelectorAll('.nav .btn').forEach((b) => (b.disabled = !running));
 
     // textContent (not innerHTML): notes may contain arbitrary text.
     const note = running ? (state.notes || '').trim() : '';
-    els.notes.textContent = note || (running ? 'Keine Notizen zu dieser Folie.' : '');
+    els.notes.textContent = note || (running ? 'No notes for this slide.' : '');
     els.notes.classList.toggle('empty', !note);
     els.notes.scrollTop = 0;
 
-    let text = 'PowerPoint nicht erreichbar';
+    let text = 'PowerPoint not reachable';
     if (state.connected) {
-      text = { running: state.blank ? 'Bildschirm ausgeblendet' : 'Präsentation läuft',
-               idle: 'Bereit – keine Präsentation aktiv',
-               off: 'PowerPoint ist nicht geöffnet' }[state.state] || state.state;
+      text = { running: state.blank ? 'Screen hidden' : 'Presentation running',
+               idle: 'Ready – no presentation active',
+               off: 'PowerPoint is not open' }[state.state] || state.state;
     } else if (state.error) {
-      text = 'Fehler: ' + state.error.slice(0, 80);
+      text = 'Error: ' + state.error.slice(0, 80);
     }
     els.status.textContent = text;
     tick();
@@ -93,7 +93,7 @@
   setInterval(tick, 500);
 
   function send(command) {
-    if (!ws || ws.readyState !== 1) return toast('Keine Verbindung zum Server');
+    if (!ws || ws.readyState !== 1) return toast('No connection to server');
     if (navigator.vibrate) navigator.vibrate(15);
     // Send all actions using the same WebSocket message format.
     ws.send(JSON.stringify({ type: 'command', command }));

@@ -11,37 +11,37 @@
 <body>
   <header>
     <div class="brand">PowerPointer</div>
-    <div class="conn"><span id="dot" class="dot"></span><span id="connText">Verbinde …</span></div>
+    <div class="conn"><span id="dot" class="dot"></span><span id="connText">Connecting …</span></div>
   </header>
 
   <main>
     <section class="info">
       <div class="slide"><span id="slide">–</span><small>/ <span id="total">–</span></small></div>
       <div class="timer" id="timer">00:00</div>
-      <div class="status" id="status">Nicht verbunden</div>
+      <div class="status" id="status">Disconnected</div>
     </section>
 
     <section class="nav">
-      <button class="btn prev" data-cmd="prev" aria-label="Vorherige Folie">‹<span>Zurück</span></button>
-      <button class="btn next" data-cmd="next" aria-label="Nächste Folie">›<span>Weiter</span></button>
+      <button class="btn prev" data-cmd="prev" aria-label="Vorherige Folie">‹<span>Back</span></button>
+      <button class="btn next" data-cmd="next" aria-label="Nächste Folie">›<span>Next</span></button>
     </section>
 
     <section class="actions">
-      <button class="btn small" id="startStop" data-cmd="start">Starten</button>
-      <button class="btn small" id="blank" data-cmd="blank">Bildschirm ausblenden</button>
+      <button class="btn small" id="startStop" data-cmd="start">Start</button>
+      <button class="btn small" id="blank" data-cmd="blank">Blank Screen</button>
     </section>
 
     <section class="notes" aria-label="Notizen">
-      <h2>Notizen</h2>
+      <h2>Notes</h2>
       <div class="notes-body" id="notes"></div>
     </section>
   </main>
 
   <div id="pinDialog" class="dialog" hidden>
     <form id="pinForm">
-      <h2>Verbindungscode</h2>
+      <h2>Connection Code</h2>
       <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
-      <button class="btn small" type="submit">Verbinden</button>
+      <button class="btn small" type="submit">Connect</button>
     </form>
   </div>
 
