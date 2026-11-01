@@ -11,7 +11,8 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
   - [Windows](#windows)
   - [macOS](#macos)
   - [Alternative: Download the ZIP Archive](#alternative-download-the-zip-archive)
-  - [Connect Your iPhone and Stop the Server](#connect-your-iphone-and-stop-the-server)
+  - [Updating](#updating)
+- [Connect Your iPhone and Stop the Server](#connect-your-iphone-and-stop-the-server)
 - [PowerPoint Permissions](#powerpoint-permissions)
 - [Using the Remote](#using-the-remote)
 - [Configuration](#configuration)
@@ -124,8 +125,8 @@ Both commands should print version numbers. If they do not, close and reopen the
 
 You can download the project without installing Git:
 
-1. Open the [PowerPointer project page on GitHub](https://github.com/MartHafner/PowerPointer).
-2. Select **Code**, then **Download ZIP**.
+1. Open the [latest release of PowerPointer](https://github.com/MartHafner/PowerPointer/releases/latest) on GitHub.
+2. Under **Assets**, download **Source code (zip)**.
 3. Extract the downloaded ZIP archive to a folder of your choice.
 4. Open Terminal (macOS) or PowerShell (Windows) in the extracted project folder. This folder contains `package.json`.
 5. Run the following commands:
@@ -136,6 +137,11 @@ You can download the project without installing Git:
    ```
 
    The same commands work in PowerShell.
+
+### Updating
+
+- **Git:** Run `git pull` and `npm ci` in the project folder, then restart the server.
+- **ZIP:** Download the [latest release](https://github.com/MartHafner/PowerPointer/releases/latest), extract it to a new folder, copy your `config/settings.json` from the old folder, and run `npm ci` and `npm start`.
 
 ### Connect Your iPhone and Stop the Server
 
