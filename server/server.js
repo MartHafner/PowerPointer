@@ -17,7 +17,11 @@ const settings = JSON.parse(
 );
 const PORT = Number(process.env.PORT) || settings.port || 8787;
 const HOST = settings.host || '0.0.0.0';
-const PIN = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
+const { generatePin } = require('./pin');
+
+// "auto" in settings.json (oder POWERPOINTER_PIN=auto) erzeugt bei jedem Start eine neue PIN.
+const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
+const PIN = configuredPin === 'auto' ? generatePin(6) : configuredPin;
 const POLL_MS = settings.pollIntervalMs || 1000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -159,5 +163,9 @@ server.listen(PORT, HOST, () => {
     console.log(`\nOder QR-Code mit der iPhone-Kamera scannen (${addrs[0].address}):\n`);
     qrcode.generate(`http://${addrs[0].address}:${PORT}`, { small: true });
   }
-  console.log(PIN ? '\nVerbindungscode (PIN) ist aktiv.' : '\nHinweis: Kein PIN gesetzt (config/settings.json → "pin").');
+  console.log(
+  !PIN ? '\nHinweis: Kein PIN gesetzt (config/settings.json → "pin").'
+  : configuredPin === 'auto' ? `\nVerbindungscode (PIN) für diese Sitzung: ${PIN}`
+  : '\nVerbindungscode (PIN) ist aktiv.'
+);
 });
