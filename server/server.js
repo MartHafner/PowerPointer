@@ -21,7 +21,7 @@ const { generatePin } = require('./pin');
 
 // "auto" in settings.json (oder POWERPOINTER_PIN=auto) erzeugt bei jedem Start eine neue PIN.
 const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
-const PIN = configuredPin === 'auto' ? generatePin(6) : configuredPin;
+const PIN = configuredPin === 'auto' ? generatePin(4) : configuredPin;
 const POLL_MS = settings.pollIntervalMs || 1000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
