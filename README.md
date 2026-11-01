@@ -28,7 +28,7 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
 - Display the current slide, total slide count, and elapsed time
 - Display the connection and PowerPoint status
 - Use touch, keyboard, or a Bluetooth clicker to control the presentation
-- Optionally protect the WebSocket control connection with a PIN
+- Protect the WebSocket control connection with a randomly generated session PIN by default
 - Use a demo mode that simulates a presentation without PowerPoint
 
 ## Requirements
@@ -160,10 +160,10 @@ Settings are stored in [`config/settings.json`](config/settings.json):
 |---|---:|---|
 | `port` | `8787` | HTTP and WebSocket port |
 | `host` | `0.0.0.0` | Network address the server listens on |
-| `pin` | `""` | Optional access code; empty means no PIN |
+| `pin` | `"auto"` | Generate a random four-digit PIN when the server starts; set to `""` to disable PIN protection |
 | `pollIntervalMs` | `1000` | Interval between PowerPoint status checks, in milliseconds |
 
-`PORT` overrides the configured port; `POWERPOINTER_PIN` overrides the configured PIN. Example for PowerShell:
+The generated PIN is printed in the server terminal and remains valid until the server stops. Set `pin` to a fixed value to use a custom PIN. `PORT` overrides the configured port; `POWERPOINTER_PIN` overrides the configured PIN, including with `auto` or an empty value. Example for PowerShell:
 
 ```powershell
 $env:POWERPOINTER_PIN = "1234"
@@ -191,9 +191,9 @@ The `npm run dev` script enables the same mode in shells that support Unix-style
 
 ## Network and Security
 
-The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. Without a configured PIN, any client on the allowed network can control the presentation.
+The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits and is displayed in the server terminal. PIN protection is not a substitute for network security.
 
-A PIN protects the WebSocket control connection but does not encrypt it. By default, PowerPointer uses HTTP and WebSocket without TLS. Do not expose the server port to the public internet, and only use PowerPointer on networks you trust.
+A PIN protects the WebSocket control connection but does not encrypt it. By default, PowerPointer uses HTTP and WebSocket without TLS, so someone able to monitor local network traffic may capture the PIN and presentation data. Do not expose the server port to the public internet, and only use PowerPointer on networks you trust. Setting `pin` to an empty value disables PIN protection.
 
 ## Project Structure
 
