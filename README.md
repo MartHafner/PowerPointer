@@ -13,6 +13,7 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
   - [Alternative: Download the ZIP Archive](#alternative-download-the-zip-archive)
   - [Updating](#updating)
 - [Connect Your iPhone and Stop the Server](#connect-your-iphone-and-stop-the-server)
+- [Using a Personal Hotspot](#using-a-personal-hotspot)
 - [PowerPoint Permissions](#powerpoint-permissions)
 - [Using the Remote](#using-the-remote)
 - [Configuration](#configuration)
@@ -148,6 +149,16 @@ You can download the project without installing Git:
 After startup, the computer prints the available network addresses and, if possible, a QR code in the terminal. Connect the iPhone and computer to the same local network, then open one of the printed addresses in Safari, for example `http://192.168.1.23:8787`. If the page cannot be reached, allow Node.js to access the private network in your firewall.
 
 Stop the server by pressing `Ctrl+C` in the Terminal or PowerShell window where it is running.
+
+### Using a Personal Hotspot
+
+If you are in an untrusted or shared network (for example at a conference), you can use your iPhone's Personal Hotspot instead:
+
+1. On the iPhone, turn on **Settings → Personal Hotspot**.
+2. Connect the computer to the iPhone's Wi-Fi network.
+3. Start PowerPointer and open the address printed in the terminal on the iPhone. In a hotspot network it usually starts with `172.20.10.`.
+
+If the computer has several network connections, the terminal lists multiple addresses. Use the one that matches the hotspot network, because the QR code uses only the first address.
 
 ## PowerPoint Permissions
 
