@@ -22,7 +22,7 @@ const { generatePin } = require('./pin');
 // "auto" in settings.json (oder POWERPOINTER_PIN=auto) erzeugt bei jedem Start eine neue PIN.
 const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
 const PIN = configuredPin === 'auto' ? generatePin(4) : configuredPin;
-const POLL_MS = settings.pollIntervalMs || 1000;
+const POLL_MS = settings.pollIntervalMs || 1000; // Polling interval for PowerPoint status and notes if Settings.json have no args.
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 const MIME = {

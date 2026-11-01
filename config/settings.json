@@ -2,5 +2,5 @@
   "port": 8787,
   "host": "0.0.0.0",
   "pin": "auto",
-  "pollIntervalMs": 100
+  "pollIntervalMs": 500
 }
