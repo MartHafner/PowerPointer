@@ -1,6 +1,6 @@
 # PowerPointer
 
-PowerPointer turns an iPhone or another browser into a local remote control for Microsoft PowerPoint. The Node.js server runs on the computer with PowerPoint; the mobile device opens the address shown by the server in its browser. No additional app or cloud connection is required.
+PowerPointer turns your phone or tablet into a remote control for Microsoft PowerPoint. The Node.js server runs on the computer with PowerPoint, and the mobile device opens the address shown by the server in its browser. No additional app or cloud connection is required.
 
 ## Table of Contents
 
@@ -12,7 +12,7 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
   - [macOS](#macos)
   - [Alternative: Download the ZIP Archive](#alternative-download-the-zip-archive)
   - [Updating](#updating)
-- [Connect Your iPhone and Stop the Server](#connect-your-iphone-and-stop-the-server)
+- [Connect Your Phone and Stop the Server](#connect-your-phone-and-stop-the-server)
 - [Using a Personal Hotspot](#using-a-personal-hotspot)
 - [PowerPoint Permissions](#powerpoint-permissions)
 - [Using the Remote](#using-the-remote)
@@ -23,13 +23,13 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
 - [License](#license)
 
 ## Features
-### Ipad view
+### iPad view
 <p align="center">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0137.jpg" width="300" alt="PowerPointer">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0138.jpg" width="300" alt="PowerPointer">
 </p>
 
-### Iphone view
+### iPhone view
 <p align="center">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_6761.jpg" width="300" alt="PowerPointer">
 </p>
@@ -38,6 +38,7 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
 - Move to the previous or next slide
 - Turn the presentation screen black and restore it
 - Display the current slide, total slide count, and elapsed time
+- Display speaker notes on tablet-sized screens
 - Display the connection and PowerPoint status
 - Use touch, keyboard, or a Bluetooth clicker to control the presentation
 - Protect the WebSocket control connection with a randomly generated session PIN by default
@@ -47,7 +48,7 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
 
 - Node.js 18 or later and npm
 - Microsoft PowerPoint for actual presentation control
-- The computer and mobile device on the same local network
+- The computer and mobile device must be connected to the same local network
 - macOS or Windows for platform-specific PowerPoint control
 
 PowerPointer can also run without PowerPoint in demo mode. On other operating systems, the server automatically uses this mode.
@@ -94,7 +95,7 @@ Both commands should print version numbers. If they do not, close and reopen the
    npm start
    ```
 
-6. Keep the PowerShell window open. The server prints one or more local addresses. Open one of them in Safari on your iPhone.
+6. Keep the PowerShell window open. The server prints one or more local addresses. Open one of them in your browser on your phone.
 
 ### macOS
 
@@ -120,7 +121,7 @@ Both commands should print version numbers. If they do not, close and reopen the
    npm start
    ```
 
-6. Keep the Terminal window open. Open one of the local addresses printed by the server in Safari on your iPhone.
+6. Keep the Terminal window open. Open one of the local addresses printed by the server in your phone's browser.
 
 ### Alternative: Download the ZIP Archive
 
@@ -144,26 +145,26 @@ You can download the project without installing Git:
 - **Git:** Run `git pull` and `npm ci` in the project folder, then restart the server.
 - **ZIP:** Download the [latest release](https://github.com/MartHafner/PowerPointer/releases/latest), extract it to a new folder, copy your `config/settings.json` from the old folder, and run `npm ci` and `npm start`.
 
-### Connect Your iPhone and Stop the Server
+### Connect Your Phone and Stop the Server
 
-After startup, the computer prints the available network addresses and, if possible, a QR code in the terminal. Connect the iPhone and computer to the same local network, then open one of the printed addresses in Safari, for example `http://192.168.1.23:8787`. If the page cannot be reached, allow Node.js to access the private network in your firewall.
+After startup, the computer prints the available network addresses and, if possible, a QR code in the terminal. Connect your phone and computer to the same local network, then open one of the printed addresses in your browser, for example `http://192.168.1.23:8787`. If the page cannot be reached, allow Node.js to access the private network in your firewall.
 
 Stop the server by pressing `Ctrl+C` in the Terminal or PowerShell window where it is running.
 
 ### Using a Personal Hotspot
 
-If you are in an untrusted or shared network (for example at a conference), you can use your iPhone's Personal Hotspot instead:
+If you are on an untrusted or shared network (for example, at a conference), you can use your phone's personal hotspot instead:
 
-1. On the iPhone, turn on **Settings → Personal Hotspot**.
-2. Connect the computer to the iPhone's Wi-Fi network.
-3. Start PowerPointer and open the address printed in the terminal on the iPhone. In a hotspot network it usually starts with `172.20.10.`.
+1. On your iPhone, turn on **Settings → Personal Hotspot**.
+2. Connect the computer to your iPhone's Wi-Fi network.
+3. Start PowerPointer and open the address printed in the terminal in your iPhone's browser. The address usually starts with `172.20.10.` when using an iPhone hotspot.
 
 If the computer has several network connections, the terminal lists multiple addresses. Use the one that matches the hotspot network, because the QR code uses only the first address.
 
 ## PowerPoint Permissions
 
 - **macOS:** Allow the application that launched Node.js (for example, Terminal) to control PowerPoint under **System Settings → Privacy & Security → Automation**.
-- **Windows:** PowerPoint must be installed and able to start. PowerPointer controls the running PowerPoint instance using PowerShell and COM automation.
+- **Windows:** PowerPoint must be installed and running with a presentation open. PowerPointer connects to the running instance using PowerShell and COM automation.
 
 ## Using the Remote
 
@@ -177,7 +178,7 @@ Keyboard shortcuts:
 | Left arrow or Page Up | Previous slide |
 | `b` or `.` | Turn the screen black or restore it |
 
-The server checks PowerPoint's status once per second by default. If the connection is lost, the web interface automatically tries to reconnect.
+The server checks PowerPoint's status every 500 milliseconds (twice per second) by default. If the connection is lost, the web interface automatically tries to reconnect.
 
 ## Configuration
 
@@ -188,7 +189,7 @@ Settings are stored in [`config/settings.json`](config/settings.json):
 | `port` | `8787` | HTTP and WebSocket port |
 | `host` | `0.0.0.0` | Network address the server listens on |
 | `pin` | `"auto"` | Generate a random four-digit PIN when the server starts; set to `""` to disable PIN protection |
-| `pollIntervalMs` | `1000` | Interval between PowerPoint status checks, in milliseconds |
+| `pollIntervalMs` | `500` | Interval between PowerPoint status checks, in milliseconds |
 
 The generated PIN is printed in the server terminal and remains valid until the server stops. Set `pin` to a fixed value to use a custom PIN. `PORT` overrides the configured port; `POWERPOINTER_PIN` overrides the configured PIN, including with `auto` or an empty value. Example for PowerShell:
 
@@ -218,7 +219,7 @@ The `npm run dev` script enables the same mode in shells that support Unix-style
 
 ## Network and Security
 
-The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits and is displayed in the server terminal. PIN protection is not a substitute for network security.
+The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits, is displayed in the server terminal, and failed attempts are not rate-limited. PIN protection is not a substitute for network security.
 
 A PIN protects the WebSocket control connection but does not encrypt it. By default, PowerPointer uses HTTP and WebSocket without TLS, so someone able to monitor local network traffic may capture the PIN and presentation data. Do not expose the server port to the public internet, and only use PowerPointer on networks you trust. Setting `pin` to an empty value disables PIN protection.
 
@@ -237,6 +238,7 @@ PowerPointer/
 │   │   ├── macos.js
 │   │   └── windows.js
 │   ├── network.js
+│   ├── pin.js
 │   ├── powerpoint.js
 │   └── server.js
 ├── install.command
@@ -246,6 +248,7 @@ PowerPointer/
 
 - `server/server.js` serves the web interface and manages HTTP, WebSocket, and status connections.
 - `server/network.js` discovers local IPv4 addresses and checks whether a client is on a local network.
+- `server/pin.js` generates the random session PIN.
 - `server/powerpoint.js` provides the shared command interface and demo mode.
 - `server/platforms/` contains the PowerPoint integrations using AppleScript (macOS) and PowerShell/COM (Windows).
 - `public/` contains the remote-control interface.
