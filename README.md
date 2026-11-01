@@ -22,13 +22,13 @@ PowerPointer turns an iPhone or another browser into a local remote control for 
 
 ## Features
 ### Ipad view
-<p>
+<p align="center">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0137.jpg" width="300" alt="PowerPointer">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0138.jpg" width="300" alt="PowerPointer">
 </p>
 
 ### Iphone view
-<p>
+<p align="center">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_6761.jpg" width="300" alt="PowerPointer">
 </p>
 
