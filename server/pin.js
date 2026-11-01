@@ -1,9 +1,8 @@
 'use strict';
-const crypto = require('crypto');
+const crypto = require('crypto'); // crypto.randomInt ist kryptografisch sicher.
 
-// Erzeugt eine zufällige numerische PIN (Standard: 6 Stellen).
-// crypto.randomInt ist kryptografisch sicher, Math.random() wäre es nicht.
-function generatePin(length = 6) {
+// Erzeugt eine zufällige numerische PIN (Standard: 4 Stellen).
+function generatePin(length = 4) {
   return String(crypto.randomInt(0, 10 ** length)).padStart(length, '0');
 }
 
