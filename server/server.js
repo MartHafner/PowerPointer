@@ -151,6 +151,13 @@ wss.on('connection', (ws) => {
 
 setInterval(poll, POLL_MS);
 poll();
+// Test für MacOS - Anfragen werden Momentan nicht beantwortet, bzw der Server Läuft nicht.
+server.on('error', (e) => {
+  console.error(e.code === 'EADDRINUSE'
+    ? `Port ${PORT} ist belegt. Anderen Port setzen: PORT=8788 npm start`
+    : `Serverfehler: ${e.message}`);
+  process.exit(1);
+});
 
 server.listen(PORT, HOST, () => {
   console.log(`\nPowerPointer läuft (Steuerung: ${powerpoint.platformName})`);
