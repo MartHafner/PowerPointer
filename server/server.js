@@ -151,6 +151,7 @@ wss.on('connection', (ws) => {
 
 setInterval(poll, POLL_MS);
 poll();
+
 // Test für MacOS - Anfragen werden Momentan nicht beantwortet, bzw der Server Läuft nicht.
 server.on('error', (e) => {
   console.error(e.code === 'EADDRINUSE'
