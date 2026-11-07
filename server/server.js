@@ -1,4 +1,17 @@
 'use strict';
+ // Debugging-Code da der Server auf MacOS nicht startet.
+const DEBUG = !!process.env.DEBUG;
+const log = (...a) => console.log(new Date().toISOString(), ...a);
+const dbg = (...a) => { if (DEBUG) log('[debug]', ...a); };
+
+log('Start: Node', process.version, '| Plattform', process.platform, '| cwd', process.cwd());
+
+process.on('uncaughtException', (e) => { console.error('UNCAUGHT EXCEPTION:', e); process.exit(1); });
+process.on('unhandledRejection', (e) => console.error('UNHANDLED REJECTION:', e));
+process.on('exit', (code) => log('Prozess beendet, Code', code));
+process.on('SIGINT', () => { log('SIGINT (Ctrl+C)'); process.exit(0); });
+process.on('SIGTERM', () => { log('SIGTERM'); process.exit(0); });
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -36,6 +49,7 @@ const MIME = {
 
 // ---------- HTTP: static web interface ----------
 const server = http.createServer((req, res) => {
+  dbg('HTTP', req.method, req.url, 'von', req.socket.remoteAddress); // Debugging-Code da der Server auf MacOS nicht startet.
   if (!isLocalClient(req.socket.remoteAddress)) {
     res.writeHead(403).end('Nur im lokalen Netzwerk erreichbar.');
     return;
@@ -78,6 +92,7 @@ function safeEqual(a, b) {
 }
 
 server.on('upgrade', (req, socket, head) => {
+  dbg('WebSocket', 'Upgrade-Anfrage von', socket.remoteAddress); // Debugging-Code da der Server auf MacOS nicht startet.
   if (!isLocalClient(socket.remoteAddress)) return socket.destroy();
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname !== '/ws') return socket.destroy();
@@ -127,6 +142,7 @@ async function poll() {
     if (state.error !== e.message) {
       state = { ...state, connected: false, error: e.message };
       broadcast();
+      console.error('Poll-Fehler:', e.message); // Debugging-Code da der Server auf MacOS nicht startet.
     }
   } finally {
     polling = false;
@@ -139,6 +155,7 @@ wss.on('connection', (ws) => {
     let msg;
     try { msg = JSON.parse(raw.toString()); } catch { return; }
     if (msg.type !== 'command') return;
+    dbg('Befehl:', msg.command); // Debugging-Code da der Server auf MacOS nicht startet.
     try {
       await powerpoint.run(msg.command);
       await poll();
@@ -152,7 +169,7 @@ wss.on('connection', (ws) => {
 setInterval(poll, POLL_MS);
 poll();
 
-// Test für MacOS - Anfragen werden Momentan nicht beantwortet, bzw der Server Läuft nicht.
+// Debugging.Code Test für MacOS - Anfragen werden Momentan nicht beantwortet, bzw der Server Läuft nicht.
 server.on('error', (e) => {
   console.error(e.code === 'EADDRINUSE'
     ? `Port ${PORT} ist belegt. Anderen Port setzen: PORT=8788 npm start`
