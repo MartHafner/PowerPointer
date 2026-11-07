@@ -1,10 +1,11 @@
 {
   "name": "powerpointer",
   "version": "1.0.3",
-  "description": "Die lokale PowerPoint-Fernbedienung für iPhone, macOS und Windows.",
+  "description": "The local PowerPoint remote control for iPhone, macOS and Windows.",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
+    "debug": "DEBUG=1 node server/server.js",
     "dev": "POWERPOINTER_MOCK=1 node server/server.js"
   },
   "engines": {

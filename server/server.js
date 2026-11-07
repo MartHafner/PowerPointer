@@ -1,5 +1,6 @@
 'use strict';
 
+const { log, dbg, initDebug } = require('./debug');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -71,6 +72,7 @@ const server = http.createServer((req, res) => {
 
 // ---------- WebSocket: commands and status ----------
 const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
+initDebug({ server, wss, isLocalClient });
 
 function safeEqual(a, b) {
   const ba = Buffer.from(a), bb = Buffer.from(b);
@@ -128,6 +130,7 @@ async function poll() {
     if (state.error !== e.message) {
       state = { ...state, connected: false, error: e.message };
       broadcast();
+      dbg('[POLL] Fehler:', e.message);
     }
   } finally {
     polling = false;
@@ -155,19 +158,19 @@ poll();
 
 server.listen(PORT, HOST, () => {
 
-  console.log(`\nPowerPointer läuft (Steuerung: ${powerpoint.platformName})`);
-  console.log('Auf dem iPhone im Safari öffnen:');
+  console.log(`\nPowerPointer is working (Operating System: ${powerpoint.platformName})`);
+  console.log('type following URL into your Phone browser:');
   const addrs = getLocalAddresses();
-  if (!addrs.length) console.log(`  http://localhost:${PORT}  (keine Netzwerkadresse gefunden)`);
+  if (!addrs.length) console.log(`  http://localhost:${PORT}  (no local network address found)`);
   for (const a of addrs) console.log(`  http://${a.address}:${PORT}   (${a.name})`);
   // Generate a QR code for the first (preferably private) address to scan with the iPhone camera.
   if (qrcode && addrs.length) {
-    console.log(`\nOder QR-Code mit der iPhone-Kamera scannen (${addrs[0].address}):\n`);
+    console.log(`\nor scan the QR code (${addrs[0].address}):\n`);
     qrcode.generate(`http://${addrs[0].address}:${PORT}`, { small: true });
   }
   console.log(
   !PIN ? '\nHinweis: Kein PIN gesetzt (config/settings.json → "pin").'
-  : configuredPin === 'auto' ? `\nVerbindungscode (PIN) für diese Sitzung: ${PIN}`
+  : configuredPin === 'auto' ? `\nSession PIN: ${PIN} \n`
   : '\nVerbindungscode (PIN) ist aktiv.'
 );
 });
