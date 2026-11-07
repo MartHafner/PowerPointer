@@ -18,6 +18,7 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 - [Using the Remote](#using-the-remote)
 - [Configuration](#configuration)
   - [Demo Mode](#demo-mode)
+  - [Debugging](#debugging)
 - [Network and Security](#network-and-security)
 - [Project Structure](#project-structure)
 - [License](#license)
@@ -218,6 +219,23 @@ npm start
 
 The `npm run dev` script enables the same mode in shells that support Unix-style environment variable assignment.
 
+### Debugging
+
+Debug logging adds timestamps and details about server startup and shutdown, TCP and HTTP connections, WebSocket connections and messages, and process warnings. To enable it on macOS or Linux, run:
+
+```sh
+DEBUG=1 npm start
+```
+
+The `npm run debug` script does the same on shells that support Unix-style environment variable assignment. In PowerShell, use:
+
+```powershell
+$env:DEBUG = "1"
+npm start
+```
+
+Debug output appears in the same terminal as the server. HTTP and WebSocket URLs have their PIN masked, but WebSocket message contents are logged. Avoid sharing debug logs publicly; to return to normal logging in PowerShell, run `Remove-Item Env:DEBUG` before starting the server again.
+
 ## Network and Security
 
 The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits, is displayed in the server terminal, and failed attempts are not rate-limited. PIN protection is not a substitute for network security.
@@ -239,6 +257,7 @@ PowerPointer/
 │   │   ├── macos.js
 │   │   └── windows.js
 │   ├── network.js
+│   ├── debug.js
 │   ├── pin.js
 │   ├── powerpoint.js
 │   └── server.js
@@ -249,6 +268,7 @@ PowerPointer/
 
 - `server/server.js` serves the web interface and manages HTTP, WebSocket, and status connections.
 - `server/network.js` discovers local IPv4 addresses and checks whether a client is on a local network.
+- `server/debug.js` provides optional timestamped logging when `DEBUG` is enabled.
 - `server/pin.js` generates the random session PIN.
 - `server/powerpoint.js` provides the shared command interface and demo mode.
 - `server/platforms/` contains the PowerPoint integrations using AppleScript (macOS) and PowerShell/COM (Windows).
