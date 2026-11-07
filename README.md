@@ -147,7 +147,8 @@ You can download the project without installing Git:
 
 ### Connect Your Phone and Stop the Server
 
-After startup, the computer prints the available network addresses and, if possible, a QR code in the terminal. Connect your phone and computer to the same local network, then open one of the printed addresses in your browser, for example `http://192.168.1.23:8787`. If the page cannot be reached, allow Node.js to access the private network in your firewall.
+After startup, the computer prints the available network addresses and, if possible, a QR code in the terminal. Connect your phone and computer to the same local network, then open one of the printed addresses in your browser, for example `http://192.168.1.23:8787`.
+macOS: If the page cannot be reached, allow node to accept incoming connections under System Settings → Network → Firewall → Options.
 
 Stop the server by pressing `Ctrl+C` in the Terminal or PowerShell window where it is running.
 
