@@ -249,9 +249,9 @@ PowerPointer/
 ├── config/
 │   └── settings.json
 ├── public/
-│   ├── App.js
-│   ├── Index.html
-│   └── Style.css
+│   ├── app.js
+│   ├── index.html
+│   └── style.css
 ├── server/
 │   ├── platforms/
 │   │   ├── macos.js
