@@ -238,7 +238,7 @@ Debug output appears in the same terminal as the server. HTTP and WebSocket URLs
 
 ## Network and Security
 
-The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits, is displayed in the server terminal, and failed attempts are not rate-limited. PIN protection is not a substitute for network security.
+The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits and is displayed in the server terminal. To slow PIN guessing, five incorrect PIN attempts from the same client IP trigger a lockout. The first lockout lasts one minute; subsequent lockouts double in duration up to a maximum of 15 minutes. During a lockout, even the correct PIN is rejected. An attempt to connect without a PIN does not count as a failed attempt, and a successful connection resets the failed-attempt and lockout history for that IP. This rate limit is held in memory and resets when the server restarts.
 
 A PIN protects the WebSocket control connection but does not encrypt it. By default, PowerPointer uses HTTP and WebSocket without TLS, so someone able to monitor local network traffic may capture the PIN and presentation data. Do not expose the server port to the public internet, and only use PowerPointer on networks you trust. Setting `pin` to an empty value disables PIN protection.
 
@@ -259,6 +259,7 @@ PowerPointer/
 │   ├── network.js
 │   ├── debug.js
 │   ├── pin.js
+│   ├── ratelimit.js
 │   ├── powerpoint.js
 │   └── server.js
 ├── install.command
@@ -270,6 +271,7 @@ PowerPointer/
 - `server/network.js` discovers local IPv4 addresses and checks whether a client is on a local network.
 - `server/debug.js` provides optional timestamped logging when `DEBUG` is enabled.
 - `server/pin.js` generates the random session PIN.
+- `server/ratelimit.js` limits repeated incorrect PIN attempts per client IP.
 - `server/powerpoint.js` provides the shared command interface and demo mode.
 - `server/platforms/` contains the PowerPoint integrations using AppleScript (macOS) and PowerShell/COM (Windows).
 - `public/` contains the remote-control interface.
