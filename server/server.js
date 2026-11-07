@@ -177,11 +177,15 @@ server.on('error', (e) => {
   process.exit(1);
 });
 
+// Debugging-Code da der Server auf MacOS nicht startet.
+  server.on('listening', () => log('Lauscht auf', JSON.stringify(server.address())));
+  server.on('connection', (s) => log('TCP von', s.remoteAddress, '->', s.localAddress));
+
 server.listen(PORT, HOST, () => {
   // Debugging-Code da der Server auf MacOS nicht startet.
   server.on('listening', () => log('Lauscht auf', JSON.stringify(server.address())));
   server.on('connection', (s) => log('TCP von', s.remoteAddress, '->', s.localAddress));
-  
+
   console.log(`\nPowerPointer läuft (Steuerung: ${powerpoint.platformName})`);
   console.log('Auf dem iPhone im Safari öffnen:');
   const addrs = getLocalAddresses();
