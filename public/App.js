@@ -28,15 +28,20 @@
       }
     };
     ws.onclose = (e) => {
-      if (e.code === 4001) {
+      if (e.code === 4001 || e.code === 4029) {
         sessionStorage.removeItem('pp-pin');
-        setConn('bad', 'PIN required');
+        pin = ''; // falsche PIN nicht automatisch erneut senden
+        if (e.code === 4029) {
+          setConn('bad', 'Locked');
+          toast('Too many wrong PINs. Please wait a minute and try again.');
+        } else {
+          setConn('bad', 'PIN required');
+        }
         els.pinDialog.hidden = false;
         els.pinInput.focus();
         return;
       }
       setConn('bad', 'Disconnected');
-      // Retry transient connection failures with an increasing delay.
       setTimeout(connect, Math.min(5000, 500 * 2 ** retry++));
     };
   }

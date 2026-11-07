@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { WebSocketServer } = require('ws');
+const limiter = require('./ratelimit');
 
 const { getLocalAddresses, isLocalClient } = require('./network');
 const powerpoint = require('./powerpoint');
@@ -21,7 +22,7 @@ const PORT = Number(process.env.PORT) || settings.port || 8787;
 const HOST = settings.host || '0.0.0.0';
 const { generatePin } = require('./pin');
 
-// "auto" in settings.json (oder POWERPOINTER_PIN=auto) erzeugt bei jedem Start eine neue PIN.
+// "auto" in settings.json (or POWERPOINTER_PIN=auto) generates a new PIN on every startup.
 const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
 const PIN = configuredPin === 'auto' ? generatePin(4) : configuredPin;
 const POLL_MS = settings.pollIntervalMs || 1000; // Polling interval for PowerPoint status and notes if Settings.json have no args.
@@ -81,12 +82,24 @@ function safeEqual(a, b) {
 }
 
 server.on('upgrade', (req, socket, head) => {
-  if (!isLocalClient(socket.remoteAddress)) return socket.destroy();
+  const ip = socket.remoteAddress;
+  if (!isLocalClient(ip)) return socket.destroy();
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname !== '/ws') return socket.destroy();
-  const authorized = !PIN || safeEqual(url.searchParams.get('pin') || '', PIN);
+
+  const supplied = url.searchParams.get('pin') || '';
+  const authorized = !PIN || safeEqual(supplied, PIN);
+  // During a lockout, even the correct PIN is rejected to prevent further guessing.
+  const locked = limiter.retryAfterMs(ip) > 0;
+
+  if (!locked && PIN) {
+    // A connection attempt without a PIN (the initial page load) does not count as a failed attempt.
+    if (authorized) limiter.registerSuccess(ip);
+    else if (supplied) limiter.registerFailure(ip);
+  }
+
   wss.handleUpgrade(req, socket, head, (ws) => {
-    // Reject the connection with a close code after completing the WebSocket handshake.
+    if (locked) return ws.close(4029, 'Zu viele Versuche');
     if (!authorized) return ws.close(4001, 'PIN erforderlich');
     wss.emit('connection', ws);
   });
