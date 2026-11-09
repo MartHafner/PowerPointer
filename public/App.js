@@ -29,12 +29,7 @@
     ws.onclose = (e) => {
       if (e.code === 4001) {
         sessionStorage.removeItem('pp-pin');
-<<<<<<< Updated upstream:public/App.js
-<<<<<<< Updated upstream:public/App.js
         setConn('bad', 'PIN required');
-=======
-=======
->>>>>>> Stashed changes:public/app.js
         pin = '';
         if (e.code === 4029) {
           setConn('bad', 'Locked');
@@ -42,7 +37,6 @@
         } else {
           setConn('bad', 'PIN required');
         }
->>>>>>> Stashed changes:public/app.js
         els.pinDialog.hidden = false;
         els.pinInput.focus();
         return;
