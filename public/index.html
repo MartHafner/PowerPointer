@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0d0f14">
+  <title>PowerPointer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-conn="warn">
+  <header>
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb020"/><stop offset=".55" stop-color="#ff5a1f"/><stop offset="1" stop-color="#9b4dff"/></linearGradient></defs><path d="M9 5h8a8 8 0 0 1 0 16h-4v6H9z M13 9v8h4a4 4 0 0 0 0-8z" fill="url(#g)" fill-rule="evenodd"/></svg>
+    </div>
+    <div class="titles">
+      <div class="brand">PowerPointer</div>
+      <div class="tag">Your PowerPoint remote control</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="conn">
+        <span id="dot" class="dot"></span>
+        <div class="conn-text">
+          <div id="connText" class="conn-title">Connecting …</div>
+          <div class="conn-sub"><span id="host"></span> • <span id="status">Disconnected</span></div>
+        </div>
+        <svg class="wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2.5 9a14 14 0 0 1 19 0"/><path d="M5.8 12.6a9.5 9.5 0 0 1 12.4 0"/><path d="M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="19.4" r=".9" fill="currentColor"/></svg>
+      </div>
+      <div class="slide"><span id="slide">–</span><small>/ <span id="total">–</span></small></div>
+    </section>
+
+    <section class="clock">
+      <div class="timer" id="timer">00:00:00</div>
+      <div class="clock-label">Presentation time</div>
+    </section>
+
+    <section class="notes" aria-label="Notes">
+      <h2>Notes</h2>
+      <div class="notes-body" id="notes"></div>
+    </section>
+
+    <section class="nav">
+      <button class="btn prev" data-cmd="prev" aria-label="Previous slide">
+        <span class="circ">‹</span><span class="lbl">Back</span>
+      </button>
+      <button class="btn next" data-cmd="next" aria-label="Next slide">
+        <span class="circ">›</span><span class="lbl">Next</span>
+      </button>
+    </section>
+
+    <section class="actions">
+      <button class="btn act" id="start" data-cmd="start"><i class="ico play"></i>Start</button>
+      <button class="btn act" id="stop" data-cmd="stop"><i class="ico square"></i>Stop</button>
+    </section>
+    <button class="btn ghost" id="blank" data-cmd="blank">Hide Screen</button>
+  </main>
+
+  <div id="pinDialog" class="dialog" hidden>
+    <form id="pinForm">
+      <h2>Connection Code</h2>
+      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+      <button class="btn act" type="submit">Connect</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
