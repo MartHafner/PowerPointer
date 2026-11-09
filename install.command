@@ -25,11 +25,9 @@ if ! npm install --no-audit --no-fund; then
   echo "Installation fehlgeschlagen. Bitte Meldung oben prüfen."
   pause; exit 1
 fi
-chmod +x start.command 2>/dev/null
-
 echo
 echo "Installation abgeschlossen."
-echo "Später starten: Doppelklick auf start.command oder 'npm start'."
+echo "Später im Projektordner mit 'npm start' starten."
 echo
 read -r -p "Jetzt starten? [J/n] " ANSWER
 case "$ANSWER" in

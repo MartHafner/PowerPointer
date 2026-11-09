@@ -16,6 +16,7 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 - [Using a Personal Hotspot](#using-a-personal-hotspot)
 - [PowerPoint Permissions](#powerpoint-permissions)
 - [Using the Remote](#using-the-remote)
+- [Troubleshooting](#troubleshooting)
 - [Configuration](#configuration)
   - [Demo Mode](#demo-mode)
 - [Network and Security](#network-and-security)
@@ -38,7 +39,7 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 - Move to the previous or next slide
 - Turn the presentation screen black and restore it
 - Display the current slide, total slide count, and elapsed time
-- Display speaker notes on tablet-sized screens
+- Display speaker notes on tablet-sized screens (viewport width of at least 700 px)
 - Display the connection and PowerPoint status
 - Use touch, keyboard, or a Bluetooth clicker to control the presentation
 - Protect the WebSocket control connection with a randomly generated session PIN by default
@@ -181,6 +182,12 @@ Keyboard shortcuts:
 
 The server checks PowerPoint's status every 500 milliseconds (twice per second) by default. If the connection is lost, the web interface automatically tries to reconnect.
 
+## Troubleshooting
+
+- **The page opens, but its controls do not respond:** Reload the page after restarting the server. The server serves `public/index.html`, which loads `public/app.js` and `public/style.css`.
+- **Speaker notes are not visible:** Notes are shown only while a slide show is running and on viewports at least 700 pixels wide. On a phone-sized screen, the notes panel is intentionally hidden. Add notes to the slide's Notes body placeholder in PowerPoint.
+- **The remote cannot reach PowerPoint on macOS:** Start the slide show and allow the application running Node.js to control PowerPoint in **System Settings → Privacy & Security → Automation**.
+
 ## Configuration
 
 Settings are stored in [`config/settings.json`](config/settings.json):
@@ -231,9 +238,9 @@ PowerPointer/
 ├── config/
 │   └── settings.json
 ├── public/
-│   ├── App.js
-│   ├── Index.html
-│   └── Style.css
+│   ├── app.js
+│   ├── index.html
+│   └── style.css
 ├── server/
 │   ├── platforms/
 │   │   ├── macos.js
@@ -253,6 +260,7 @@ PowerPointer/
 - `server/powerpoint.js` provides the shared command interface and demo mode.
 - `server/platforms/` contains the PowerPoint integrations using AppleScript (macOS) and PowerShell/COM (Windows).
 - `public/` contains the remote-control interface.
+- `public/index.html` is the served page; it loads `app.js` and `style.css`.
 - `config/settings.json` contains the server settings.
 - `install.command` is a macOS installation script.
 
