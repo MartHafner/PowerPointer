@@ -188,3 +188,4 @@ server.listen(PORT, HOST, () => {
   : '\nVerbindungscode (PIN) ist aktiv.'
 );
 });
+module.exports = { port: PORT, pin: PIN, configuredPin, server, wss, getState: () => state };

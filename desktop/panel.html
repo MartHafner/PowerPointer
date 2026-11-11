@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'self'; script-src 'self'">
+  <title>PowerPointer</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header>
+    <div class="brand">PowerPointer</div>
+    <div class="tag">Server – <span id="platform"></span></div>
+  </header>
+
+  <main>
+    <section class="card status">
+      <span id="dot" class="dot"></span>
+      <div class="grow">
+        <div id="statusText" class="title">…</div>
+        <div class="sub">Slide <b id="slide">–</b> • Clients <b id="clients">0</b></div>
+      </div>
+    </section>
+
+    <section class="card connect">
+      <h2>Connect your phone</h2>
+      <img id="qr" class="qr" alt="QR code">
+      <div id="addrs" class="addrs"></div>
+      <div class="hint">Phone and computer must be on the same network.</div>
+    </section>
+
+    <section class="card pin">
+      <h2>Connection code</h2>
+      <div id="pin" class="pinval">––––</div>
+      <div id="pinNote" class="hint"></div>
+    </section>
+
+  </main>
+  <script src="panel.js"></script>
+</body>
+</html>
