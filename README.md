@@ -12,6 +12,7 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
   - [macOS](#macos)
   - [Alternative: Download the ZIP Archive](#alternative-download-the-zip-archive)
   - [Updating](#updating)
+- [Desktop App](#desktop-app)
 - [Connect Your Phone and Stop the Server](#connect-your-phone-and-stop-the-server)
 - [Using a Personal Hotspot](#using-a-personal-hotspot)
 - [PowerPoint Permissions](#powerpoint-permissions)
@@ -53,6 +54,18 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 - macOS or Windows for platform-specific PowerPoint control
 
 PowerPointer can also run without PowerPoint in demo mode. On other operating systems, the server automatically uses this mode.
+
+## Desktop App
+
+PowerPointer includes an optional Electron desktop app. It starts the server and opens a dashboard showing the PowerPoint status, current slide, connected clients, connection PIN, and local network addresses. Select an address to display its QR code, or copy it to the clipboard to open it on your phone.
+
+Install the project dependencies as described below, then start the desktop app from the project folder:
+
+```sh
+npm run desktop
+```
+
+You do not need to run `npm start` separately; the desktop app starts the server for you. On macOS, closing the dashboard window leaves the server running; use **Cmd+Q** to quit the app and stop the server. On Windows, closing the window stops the app and server.
 
 ## Download and Install from GitHub
 
@@ -248,6 +261,12 @@ A PIN protects the WebSocket control connection but does not encrypt it. By defa
 PowerPointer/
 ├── config/
 │   └── settings.json
+├── desktop/
+│   ├── main.js
+│   ├── panel.css
+│   ├── panel.html
+│   ├── panel.js
+│   └── preload-panel.js
 ├── public/
 │   ├── app.js
 │   ├── index.html
@@ -274,6 +293,7 @@ PowerPointer/
 - `server/ratelimit.js` limits repeated incorrect PIN attempts per client IP.
 - `server/powerpoint.js` provides the shared command interface and demo mode.
 - `server/platforms/` contains the PowerPoint integrations using AppleScript (macOS) and PowerShell/COM (Windows).
+- `desktop/` contains the optional Electron app and its connection dashboard.
 - `public/` contains the remote-control interface.
 - `config/settings.json` contains the server settings.
 - `install.command` is a macOS installation script.
