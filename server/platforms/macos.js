@@ -25,9 +25,9 @@ module.exports = {
   blank: () => tell(
     // Toggle between a black screen and the running presentation.
     `set v to ${VIEW}\n` +
-    `if state of v is slide show state black screen then\n` +
-    `set state of v to slide show state running\nelse\n` +
-    `set state of v to slide show state black screen\nend if`
+    `if slide state of v is slide show state black screen then\n` +
+    `set slide state of v to slide show state running\nelse\n` +
+    `set slide state of v to slide show state black screen\nend if`
   ),
   async status() {
     const out = await osa(
@@ -40,7 +40,7 @@ module.exports = {
       `set v to ${VIEW}\n` +
       `set idx to slide index of slide of v\n` +
       `set blk to 0\n` +
-      `if state of v is slide show state black screen then set blk to 1\n` +
+      `if slide state of v is slide show state black screen then set blk to 1\n` +
       `return "running|" & idx & "|" & total & "|" & blk\n` +
       `end tell`
     );
@@ -52,8 +52,8 @@ module.exports = {
   async notes() {
     const out = await tell(
       `set s to slide of ${VIEW}\n` +
-      `repeat with sh in shapes of notes page of s\n` +
-      `if placeholder type of placeholder format of sh is placeholder type body then\n` +
+      `repeat with sh in (get shapes of notes page of s)\n` +
+      `if placeholder type of place holder format of sh is placeholder type body placeholder then\n` +
       `return content of text range of text frame of sh\n` +
       `end if\nend repeat\nreturn ""`
     );
