@@ -1,253 +1,162 @@
 # PowerPointer
 
-PowerPointer turns your phone or tablet into a remote control for Microsoft PowerPoint. The Node.js server runs on the computer with PowerPoint, and the mobile device opens the address shown by the server in its browser. No additional app or cloud connection is required.
+PowerPointer turns an iPhone, iPad, or other phone or tablet into a remote control for Microsoft PowerPoint. Run the Node.js server on the computer that has PowerPoint open, then connect from a browser on the same local network. No mobile app or cloud connection is required.
 
-## Table of Contents
-
-- [Features](#features)
-- [Requirements](#requirements)
-- [Download and Install from GitHub](#download-and-install-from-github)
-  - [Install the Required Software](#install-the-required-software)
-  - [Windows](#windows)
-  - [macOS](#macos)
-  - [Alternative: Download the ZIP Archive](#alternative-download-the-zip-archive)
-  - [Updating](#updating)
-- [Connect Your Phone and Stop the Server](#connect-your-phone-and-stop-the-server)
-- [Using a Personal Hotspot](#using-a-personal-hotspot)
-- [PowerPoint Permissions](#powerpoint-permissions)
-- [Using the Remote](#using-the-remote)
-- [Configuration](#configuration)
-  - [Demo Mode](#demo-mode)
-  - [Debugging](#debugging)
-- [Network and Security](#network-and-security)
-- [Project Structure](#project-structure)
-- [License](#license)
+The optional Electron desktop app provides a local dashboard with connection addresses, a QR code, the session PIN, and presentation status.
 
 ## Features
-### iPad view
+
+- Start and stop a slide show; navigate forward and backward.
+- Blank the presentation screen and restore it.
+- Show the current slide, total slide count, and elapsed time.
+- Display speaker notes on screens at least 700 px wide.
+- Control the presentation with touch, keyboard, or a Bluetooth clicker.
+- Connect with a randomly generated session PIN by default.
+- Run a simulated presentation without PowerPoint using demo mode.
+
+### iPad
+
 <p align="center">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0137.jpg" width="300" alt="PowerPointer">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0138.jpg" width="300" alt="PowerPointer">
+  <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0137.jpg" width="300" alt="PowerPointer on iPad">
+  <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0138.jpg" width="300" alt="PowerPointer on iPad">
 </p>
 
-### iPhone view
-<p align="center">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_6761.jpg" width="300" alt="PowerPointer">
-</p>
+### iPhone
 
-- Start and stop a presentation
-- Move to the previous or next slide
-- Turn the presentation screen black and restore it
-- Display the current slide, total slide count, and elapsed time
-- Display speaker notes on tablet-sized screens
-- Display the connection and PowerPoint status
-- Use touch, keyboard, or a Bluetooth clicker to control the presentation
-- Protect the WebSocket control connection with a randomly generated session PIN by default
-- Use a demo mode that simulates a presentation without PowerPoint
+<p align="center">
+  <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_6761.jpg" width="300" alt="PowerPointer on iPhone">
+</p>
 
 ## Requirements
 
-- Node.js 18 or later and npm
-- Microsoft PowerPoint for actual presentation control
-- The computer and mobile device must be connected to the same local network
-- macOS or Windows for platform-specific PowerPoint control
+- Node.js 18 or later and npm.
+- Microsoft PowerPoint for real presentation control.
+- A computer and phone/tablet connected to the same local network.
+- macOS or Windows for PowerPoint integration. On other operating systems, PowerPointer uses demo mode.
 
-PowerPointer can also run without PowerPoint in demo mode. On other operating systems, the server automatically uses this mode.
+## Install and start
 
-## Download and Install from GitHub
-
-### Install the Required Software
-
-- **Node.js 18 or later**, including npm. Download and install the current LTS release from [nodejs.org](https://nodejs.org/).
-- **Git**, if you want to clone the repository using `git clone`. Download it from [git-scm.com](https://git-scm.com/downloads).
-- Microsoft PowerPoint for actual presentation control.
-- The computer and mobile device on the same local network.
-
-After installation, check that Node.js and npm are available:
+Install Node.js 18 or later. To clone the repository, install Git as well. Then run these commands in Terminal (macOS) or PowerShell (Windows):
 
 ```sh
-node --version
-npm --version
+git clone https://github.com/MartHafner/PowerPointer.git
+cd PowerPointer
+npm ci
+npm start
 ```
 
-Both commands should print version numbers. If they do not, close and reopen the terminal. If the commands are still not found, check your Node.js installation.
+Keep the terminal open. PowerPointer prints the available local addresses and, when possible, a QR code. Open one of those addresses on your phone, for example `http://192.168.1.23:8787`, and enter the session PIN shown in the terminal.
 
-### Windows
+To update a clone, run `git pull` and `npm ci`, then restart the server. Alternatively, download and extract the [latest release](https://github.com/MartHafner/PowerPointer/releases/latest), then run `npm ci` in the extracted folder.
 
-1. Install Node.js 18 or later and Git (see above).
-2. Open **PowerShell**.
-3. Change to the folder where you want to keep the project, then clone the repository:
+Stop the server with `Ctrl+C`.
 
-   ```powershell
-   cd $HOME\Documents
-   git clone https://github.com/MartHafner/PowerPointer.git
-   cd PowerPointer
-   ```
+## Desktop app
 
-4. Install the exact project dependencies:
+After installing dependencies, start the Electron dashboard with:
 
-   ```powershell
-   npm ci
-   ```
+```sh
+npm run desktop
+```
 
-5. Start the server:
+The dashboard displays the server status, connected clients, local addresses, a QR code, and the connection code. Closing the dashboard window on macOS leaves the server running; use `Cmd+Q` to quit the app and stop the server. On Windows and other platforms, closing the window quits the app.
 
-   ```powershell
-   npm start
-   ```
+## PowerPoint permissions
 
-6. Keep the PowerShell window open. The server prints one or more local addresses. Open one of them in your browser on your phone.
+- **macOS:** Allow the app that launched Node.js (for example, Terminal or PowerPointer) to control PowerPoint in **System Settings → Privacy & Security → Automation**.
+- **Windows:** PowerPoint must be installed and running. PowerPointer controls the running PowerPoint instance using PowerShell and COM automation.
 
-### macOS
+## Using the remote
 
-1. Install Node.js 18 or later. Git is often already available; if macOS prompts you, install the offered Xcode Command Line Tools.
-2. Open **Terminal**.
-3. Change to the folder where you want to keep the project, then clone the repository:
-
-   ```sh
-   cd ~/Documents
-   git clone https://github.com/MartHafner/PowerPointer.git
-   cd PowerPointer
-   ```
-
-4. Install the project dependencies:
-
-   ```sh
-   npm ci
-   ```
-
-5. Start the server:
-
-   ```sh
-   npm start
-   ```
-
-6. Keep the Terminal window open. Open one of the local addresses printed by the server in your phone's browser.
-
-### Alternative: Download the ZIP Archive
-
-You can download the project without installing Git:
-
-1. Open the [latest release of PowerPointer](https://github.com/MartHafner/PowerPointer/releases/latest) on GitHub.
-2. Under **Assets**, download **Source code (zip)**.
-3. Extract the downloaded ZIP archive to a folder of your choice.
-4. Open Terminal (macOS) or PowerShell (Windows) in the extracted project folder. This folder contains `package.json`.
-5. Run the following commands:
-
-   ```sh
-   npm ci
-   npm start
-   ```
-
-   The same commands work in PowerShell.
-
-### Updating
-
-- **Git:** Run `git pull` and `npm ci` in the project folder, then restart the server.
-- **ZIP:** Download the [latest release](https://github.com/MartHafner/PowerPointer/releases/latest), extract it to a new folder, copy your `config/settings.json` from the old folder, and run `npm ci` and `npm start`.
-
-### Connect Your Phone and Stop the Server
-
-After startup, the computer prints the available network addresses and, if possible, a QR code in the terminal. Connect your phone and computer to the same local network, then open one of the printed addresses in your browser, for example `http://192.168.1.23:8787`.
-macOS: If the page cannot be reached, allow node to accept incoming connections under System Settings → Network → Firewall → Options.
-
-Stop the server by pressing `Ctrl+C` in the Terminal or PowerShell window where it is running.
-
-### Using a Personal Hotspot
-
-If you are on an untrusted or shared network (for example, at a conference), you can use your phone's personal hotspot instead:
-
-1. On your iPhone, turn on **Settings → Personal Hotspot**.
-2. Connect the computer to your iPhone's Wi-Fi network.
-3. Start PowerPointer and open the address printed in the terminal in your iPhone's browser. The address usually starts with `172.20.10.` when using an iPhone hotspot.
-
-If the computer has several network connections, the terminal lists multiple addresses. Use the one that matches the hotspot network, because the QR code uses only the first address.
-
-## PowerPoint Permissions
-
-- **macOS:** Allow the application that launched Node.js (for example, Terminal) to control PowerPoint under **System Settings → Privacy & Security → Automation**.
-- **Windows:** PowerPoint must be installed and running with a presentation open. PowerPointer connects to the running instance using PowerShell and COM automation.
-
-## Using the Remote
-
-Use the buttons to control the presentation. While it is running, the interface displays the current slide, the total number of slides, and elapsed time.
-
-Keyboard shortcuts:
+Use the on-screen buttons to start or stop the show, move between slides, or blank the presentation screen. The timer tracks elapsed time since the current show started. Speaker notes are shown on screens at least 700 px wide.
 
 | Key | Action |
 |---|---|
 | Right arrow, Page Down, or Space | Next slide |
 | Left arrow or Page Up | Previous slide |
-| `b` or `.` | Turn the screen black or restore it |
+| `b` or `.` | Blank or restore the presentation screen |
 
-The server checks PowerPoint's status every 500 milliseconds (twice per second) by default. If the connection is lost, the web interface automatically tries to reconnect.
+PowerPointer checks PowerPoint's status every 500 ms by default and attempts to reconnect the browser if the connection is interrupted.
 
 ## Configuration
 
-Settings are stored in [`config/settings.json`](config/settings.json):
+Edit [`config/settings.json`](config/settings.json) before starting the server:
 
 | Setting | Default | Description |
 |---|---:|---|
 | `port` | `8787` | HTTP and WebSocket port |
-| `host` | `0.0.0.0` | Network address the server listens on |
-| `pin` | `"auto"` | Generate a random four-digit PIN when the server starts; set to `""` to disable PIN protection |
-| `pollIntervalMs` | `500` | Interval between PowerPoint status checks, in milliseconds |
+| `host` | `0.0.0.0` | Address on which the server listens |
+| `pin` | `"auto"` | Generate a new four-digit PIN at startup. Set a fixed string to use a custom PIN, or `""` to disable PIN protection. |
+| `pollIntervalMs` | `500` | PowerPoint status polling interval in milliseconds |
 
-The generated PIN is printed in the server terminal and remains valid until the server stops. Set `pin` to a fixed value to use a custom PIN. `PORT` overrides the configured port; `POWERPOINTER_PIN` overrides the configured PIN, including with `auto` or an empty value. Example for PowerShell:
+The generated PIN is printed in the terminal and remains valid until the server stops. `PORT` overrides the configured port; `POWERPOINTER_PIN` overrides the configured PIN. For example, in PowerShell:
 
 ```powershell
 $env:POWERPOINTER_PIN = "1234"
 npm start
 ```
 
-The web interface prompts for the PIN when connecting. It is stored for the current browser tab session.
+The browser stores the PIN for the current tab session.
 
-### Demo Mode
+### Demo mode
 
-Demo mode simulates a presentation with ten slides. On macOS and Windows, enable it with the `POWERPOINTER_MOCK` environment variable:
+Demo mode simulates a ten-slide presentation and does not require PowerPoint. On macOS or Linux, start the server with:
 
 ```sh
-POWERPOINTER_MOCK=1 npm start
+npm run dev
 ```
 
-In PowerShell:
+On Windows, use PowerShell:
 
 ```powershell
 $env:POWERPOINTER_MOCK = "1"
 npm start
 ```
 
-The `npm run dev` script enables the same mode in shells that support Unix-style environment variable assignment.
+To run the desktop app in demo mode, set `POWERPOINTER_MOCK` to `1` before running `npm run desktop`.
 
-### Debugging
+### Debug logging
 
-Debug logging adds timestamps and details about server startup and shutdown, TCP and HTTP connections, WebSocket connections and messages, and process warnings. To enable it on macOS or Linux, run:
+Debug mode logs server lifecycle events and local network traffic. Start it on macOS or Linux with:
 
 ```sh
-DEBUG=1 npm start
+npm run debug
 ```
 
-The `npm run debug` script does the same on shells that support Unix-style environment variable assignment. In PowerShell, use:
+In PowerShell:
 
 ```powershell
 $env:DEBUG = "1"
 npm start
 ```
 
-Debug output appears in the same terminal as the server. HTTP and WebSocket URLs have their PIN masked, but WebSocket message contents are logged. Avoid sharing debug logs publicly; to return to normal logging in PowerShell, run `Remove-Item Env:DEBUG` before starting the server again.
+Debug logs mask the PIN in URLs but include WebSocket message contents. Avoid sharing logs publicly. To disable debug mode in PowerShell, run `Remove-Item Env:DEBUG` before starting the server.
 
-## Network and Security
+## Network and security
 
-The web interface and control connection are intended for use on a trusted local network. The server rejects connections from non-local IP addresses. The default PIN is random and changes each time the server starts, but it has only four digits and is displayed in the server terminal. To slow PIN guessing, five incorrect PIN attempts from the same client IP trigger a lockout. The first lockout lasts one minute; subsequent lockouts double in duration up to a maximum of 15 minutes. During a lockout, even the correct PIN is rejected. An attempt to connect without a PIN does not count as a failed attempt, and a successful connection resets the failed-attempt and lockout history for that IP. This rate limit is held in memory and resets when the server restarts.
+PowerPointer is intended for trusted local networks. It rejects requests from non-local IP addresses and applies a per-client-IP lockout after five incorrect PIN attempts. The first lockout lasts one minute; later lockouts double up to 15 minutes. A lockout also rejects the correct PIN, and the in-memory attempt history resets when the server restarts.
 
-A PIN protects the WebSocket control connection but does not encrypt it. By default, PowerPointer uses HTTP and WebSocket without TLS, so someone able to monitor local network traffic may capture the PIN and presentation data. Do not expose the server port to the public internet, and only use PowerPointer on networks you trust. Setting `pin` to an empty value disables PIN protection.
+The default PIN is random and changes on each server start, but it is only four digits. The PIN protects the WebSocket control connection; it does not encrypt traffic. HTTP and WebSocket use no TLS by default, so someone monitoring local network traffic may capture the PIN and presentation data. Do not expose the server port to the public internet. Use a trusted network, or a suitably protected tunnel, and keep PIN protection enabled.
 
-## Project Structure
+## Troubleshooting
+
+- **The phone cannot open the page:** Check that both devices are on the same network and use the address printed by the server. If the computer has multiple network interfaces, try another listed address. On macOS, allow incoming connections for the app running Node.js in the firewall settings.
+- **The page opens but controls do not work:** Check that the server is still running, reload the page, and enter the current session PIN.
+- **PowerPoint is not reachable on macOS:** Open PowerPoint and allow automation access as described above.
+- **Notes are missing:** Notes appear only while a slide show is running, on screens at least 700 px wide, and when notes have been added to the slide's Notes body placeholder.
+- **Using an iPhone hotspot:** Connect the computer to the phone's Personal Hotspot and use the matching address printed by the server. If several addresses appear, select the one for the hotspot network; the terminal QR code uses the first address.
+
+## Project structure
 
 ```text
 PowerPointer/
 ├── config/
 │   └── settings.json
+├── desktop/
+│   ├── main.js
+│   ├── panel.html
+│   ├── panel.css
+│   └── preload-panel.js
 ├── public/
 │   ├── app.js
 │   ├── index.html
@@ -256,27 +165,16 @@ PowerPointer/
 │   ├── platforms/
 │   │   ├── macos.js
 │   │   └── windows.js
-│   ├── network.js
 │   ├── debug.js
+│   ├── network.js
 │   ├── pin.js
-│   ├── ratelimit.js
 │   ├── powerpoint.js
+│   ├── ratelimit.js
 │   └── server.js
 ├── install.command
 ├── package.json
 └── package-lock.json
 ```
-
-- `server/server.js` serves the web interface and manages HTTP, WebSocket, and status connections.
-- `server/network.js` discovers local IPv4 addresses and checks whether a client is on a local network.
-- `server/debug.js` provides optional timestamped logging when `DEBUG` is enabled.
-- `server/pin.js` generates the random session PIN.
-- `server/ratelimit.js` limits repeated incorrect PIN attempts per client IP.
-- `server/powerpoint.js` provides the shared command interface and demo mode.
-- `server/platforms/` contains the PowerPoint integrations using AppleScript (macOS) and PowerShell/COM (Windows).
-- `public/` contains the remote-control interface.
-- `config/settings.json` contains the server settings.
-- `install.command` is a macOS installation script.
 
 ## License
 
