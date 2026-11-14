@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    tags: ['v*']        # Build bei Tags wie v2.0.1
+    tags: ['v*']        # Build bei Tags
   workflow_dispatch:     # manuell startbar
 
 permissions:
