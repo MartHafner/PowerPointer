@@ -78,7 +78,7 @@ if (!app.requestSingleInstanceLock()) {
 
     // Windows/Linux: remove the default File/Edit/View/Window menu bar.
     if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
-    
+
     startServer();
     registerIpc();
     createPanel();
