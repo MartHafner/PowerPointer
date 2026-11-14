@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const { log, dbg, initDebug } = require('./debug');
+const { log, dbg, initDebug, DEBUG } = require('./debug');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -26,6 +26,8 @@ const { generatePin } = require('./pin');
 // "auto" in settings.json (or POWERPOINTER_PIN=auto) generates a new PIN on every startup.
 const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
 const PIN = configuredPin === 'auto' ? generatePin(4) : configuredPin;
+// Terminal UI: always when run headless (node server/server.js), inside Electron only with DEBUG.
+const TERMINAL_UI = DEBUG || !process.versions.electron;
 const POLL_MS = settings.pollIntervalMs || 1000; // Polling interval for PowerPoint status and notes if Settings.json have no args.
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
@@ -171,7 +173,7 @@ setInterval(poll, POLL_MS);
 poll();
 
 server.listen(PORT, HOST, () => {
-
+  if (!TERMINAL_UI) return;
   console.log(`\nPowerPointer is working (Operating System: ${powerpoint.platformName})`);
   console.log('type following URL into your Phone browser:');
   const addrs = getLocalAddresses();

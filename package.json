@@ -7,12 +7,14 @@
     "powerpointer": "server/server.js"
   },
   "scripts": {
-    "start": "node server/server.js",
-    "desktop": "electron .",
-    "debug": "DEBUG=1 node server/server.js",
-    "dev": "POWERPOINTER_MOCK=1 node server/server.js",
-    "desktop:dev": "POWERPOINTER_MOCK=1 electron ."
-  },
+  "start": "electron .",
+  "server": "node server/server.js",
+  "debug": "DEBUG=1 electron .",
+  "dev": "POWERPOINTER_MOCK=1 electron .",
+  "server:dev": "POWERPOINTER_MOCK=1 node server/server.js",
+  "desktop": "electron .",
+  "desktop:dev": "POWERPOINTER_MOCK=1 electron ."
+},
   "engines": {
     "node": ">=18"
   },
