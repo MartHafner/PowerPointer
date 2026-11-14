@@ -1,7 +1,7 @@
 'use strict';
 // Electron shell for the PowerPointer server: starts the existing server in-process
 // and shows a server-side panel (status, addresses, QR code, PIN).
-const { app, BrowserWindow, ipcMain, clipboard, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, clipboard, dialog, Menu } = require('electron');
 const path = require('path');
 const QRCode = require('qrcode');
 
@@ -75,6 +75,10 @@ if (!app.requestSingleInstanceLock()) {
     panel.focus();
   });
   app.whenReady().then(() => {
+
+    // Windows/Linux: remove the default File/Edit/View/Window menu bar.
+    if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
+    
     startServer();
     registerIpc();
     createPanel();
