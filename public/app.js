@@ -13,12 +13,16 @@
   els.host.textContent = location.hostname;
 
   function connect() {
+    const usedPin = pin;
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    ws = new WebSocket(`${proto}://${location.host}/ws?pin=${encodeURIComponent(pin)}`);
+    ws = new WebSocket(`${proto}://${location.host}/ws?pin=${encodeURIComponent(usedPin)}`);
     ws.onopen = () => { retry = 0; setConn('ok', 'Connected'); };
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
       if (msg.type === 'state') {
+        // Only authorized clients receive state: PIN accepted, unlock the page.
+        if (usedPin) sessionStorage.setItem('pp-pin', usedPin);
+        els.pinDialog.hidden = true;
         clockOffset = msg.serverTime - Date.now();
         state = msg.data;
         render();
@@ -27,24 +31,30 @@
       }
     };
     ws.onclose = (e) => {
-      if (e.code === 4001) {
+      if (e.code === 4001 || e.code === 4029) {
         sessionStorage.removeItem('pp-pin');
-        setConn('bad', 'PIN required');
         pin = '';
         if (e.code === 4029) {
           setConn('bad', 'Locked');
           toast('Too many wrong PINs. Please wait a minute and try again.');
         } else {
           setConn('bad', 'PIN required');
+          if (usedPin) toast('Wrong PIN');
         }
-        els.pinDialog.hidden = false;
-        els.pinInput.focus();
+        showPinDialog();
         return;
       }
       setConn('bad', 'Disconnected');
       // Retry transient connection failures with an increasing delay.
       setTimeout(connect, Math.min(5000, 500 * 2 ** retry++));
     };
+  }
+
+  function showPinDialog() {
+    els.pinInput.disabled = false;
+    els.pinInput.value = '';
+    els.pinDialog.hidden = false;
+    els.pinInput.focus();
   }
 
   function setConn(cls, text) {
@@ -112,14 +122,17 @@
     if (map[e.key] && els.pinDialog.hidden) { e.preventDefault(); send(map[e.key]); }
   });
 
-  els.pinForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    pin = els.pinInput.value.trim();
-    sessionStorage.setItem('pp-pin', pin);
-    els.pinInput.value = '';
-    els.pinDialog.hidden = true;
-    connect();
+  // Only digits, max. 4. As soon as the fourth digit is entered, connect automatically.
+  els.pinInput.addEventListener('input', () => {
+    const v = els.pinInput.value.replace(/\D/g, '').slice(0, 4);
+    els.pinInput.value = v;
+    if (v.length === 4) {
+      pin = v;
+      els.pinInput.disabled = true; // prevent double submit while connecting
+      connect();
+    }
   });
+  els.pinForm.addEventListener('submit', (e) => e.preventDefault());
 
   let toastTimer;
   function toast(msg) {

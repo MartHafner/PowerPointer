@@ -59,10 +59,10 @@
   </main>
 
   <div id="pinDialog" class="dialog" hidden>
-    <form id="pinForm">
+    <form id="pinForm" autocomplete="off">
       <h2>Connection Code</h2>
-      <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
-      <button class="btn act" type="submit">Connect</button>
+      <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*"
+           maxlength="4" autocomplete="off" placeholder="••••">
     </form>
   </div>
 
