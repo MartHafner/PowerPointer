@@ -34,6 +34,7 @@ function createPanel() {
     width: 480, height: 640, minWidth: 420, minHeight: 300,
     useContentSize: true,
     title: 'PowerPointer', backgroundColor: '#0b0c12',
+    icon: path.join(__dirname, 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload-panel.js'),
       contextIsolation: true, sandbox: true, nodeIntegration: false

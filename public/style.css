@@ -1,5 +1,5 @@
 :root {
-  --bg: #0b0c12; --panel: rgba(255,255,255,.055); --line: rgba(255,255,255,.10);
+  --bg: #0e0a08; --panel: rgba(255,255,255,.055); --line: rgba(199, 199, 199, 0.1);
   --text: #f4f5f8; --muted: #8e95a8;
   --accent: #ff7a1a; --accent2: #f0432a;
   --ok: #34c759; --bad: #ff453a; --warn: #ffb020;
@@ -9,9 +9,9 @@ html, body { height: 100%; margin: 0; }
 body {
   color: var(--text);
   background:
-    radial-gradient(70% 40% at 100% 0%, rgba(255,110,30,.28), transparent 70%),
-    radial-gradient(60% 35% at 0% 100%, rgba(255,110,30,.22), transparent 70%),
-    radial-gradient(50% 30% at 100% 100%, rgba(110,70,220,.22), transparent 70%),
+    radial-gradient(70% 40% at 100% 0%, rgba(255, 124, 53, 0.42), transparent 80%),
+    radial-gradient(60% 35% at 0% 100%, rgba(252, 113, 39, 0.34), transparent 70%),
+    radial-gradient(50% 30% at 100% 100%, rgba(93, 48, 253, 0.2), transparent 70%),
     var(--bg);
   font: 16px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
   display: flex; flex-direction: column;
@@ -20,9 +20,8 @@ body {
 }
 
 header { display: flex; align-items: center; gap: 14px; padding: 18px 20px 10px; }
-.logo { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center;
-  background: linear-gradient(145deg, #2a2540, #14131f); border: 1px solid var(--line); }
-.logo svg { width: 30px; height: 30px; }
+.logo { width: 52px; height: 52px; flex: none; }
+.logo img { width: 100%; height: 100%; display: block; }
 .brand { font-size: 24px; font-weight: 700; letter-spacing: .2px; }
 .tag { font-size: 13px; color: var(--muted); }
 
