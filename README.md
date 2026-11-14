@@ -3,7 +3,7 @@
 PowerPointer turns your phone or tablet into a remote control for Microsoft PowerPoint. The Node.js server runs on the computer with PowerPoint, and the mobile device opens the address shown by the server in its browser. No additional app or cloud connection is required.
 
 ## Table of Contents
-
+- [Pictures](#pictures)
 - [Features](#features)
 - [Requirements](#requirements)
 - [Download and Install from GitHub](#download-and-install-from-github)
@@ -26,7 +26,7 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 - [Project Structure](#project-structure)
 - [License](#license)
 
-## Features
+## Pictures
 
 ### Desktop view
 <p align="center">
@@ -40,9 +40,11 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 
 ### iPhone view
 <p align="center">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_Smartphone.png" width="300" alt="PowerPointer">
    <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_PIN.png" width="300" alt="PowerPointer">
+   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_Smartphone.png" width="300" alt="PowerPointer">
 </p>
+
+## Features
 
 - Start and stop a presentation
 - Move to the previous or next slide
