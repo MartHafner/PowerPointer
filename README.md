@@ -178,12 +178,10 @@ You can download the project without installing Git:
 | `npm start` | Starts the desktop app (Electron dashboard) and the server. Terminal output appears only when `DEBUG` is set. |
 | `npm run desktop` | Same as `npm start`. |
 | `npm run server` | Starts only the server without a dashboard. Prints addresses, a QR code, and the PIN in the terminal. |
-| `npm run dev` | `npm start` in [demo mode](#demo-mode) (Unix-style shells). |
+| `npm run dev` | `npm start` in [demo mode](#demo-mode). |
 | `npm run desktop:dev` | Same as `npm run dev`. |
-| `npm run server:dev` | `npm run server` in demo mode (Unix-style shells). |
-| `npm run debug` | `npm start` with [debug logging](#debugging) (Unix-style shells). |
-
-The `dev`, `server:dev`, `desktop:dev`, and `debug` scripts set environment variables with Unix syntax. In PowerShell, set the variable first as shown in the [Demo Mode](#demo-mode) and [Debugging](#debugging) sections.
+| `npm run server:dev` | `npm run server` in demo mode. |
+| `npm run debug` | `npm start` with [debug logging](#debugging). |
 
 ## Desktop App
 
@@ -198,6 +196,17 @@ npm start
 `npm run desktop` does the same. You do not need to start the server separately; the desktop app starts it for you. Only one instance can run at a time: starting PowerPointer a second time brings the existing window to the front. If the configured port is already in use, the app shows an error message and quits.
 
 On macOS, closing the dashboard window leaves the server running; use **Cmd+Q** to quit the app and stop the server. On Windows, closing the window stops the app and server.
+
+### Build a Windows installer
+
+On Windows, with Node.js 22.12 or later installed, run:
+
+```powershell
+npm ci
+npm run build:win
+```
+
+The x64 NSIS setup executable is created in `dist/`. It is not code-signed, so Windows may show a SmartScreen warning. A signing certificate is needed for a signed public release.
 
 ## Connect Your Phone and Stop the Server
 
