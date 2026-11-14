@@ -1,6 +1,6 @@
 {
   "name": "powerpointer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "The local PowerPoint remote control for iPhone, macOS and Windows.",
   "main": "desktop/main.js",
   "bin": {
@@ -14,7 +14,8 @@
     "server:dev": "cross-env POWERPOINTER_MOCK=1 node server/server.js",
     "desktop": "electron .",
     "desktop:dev": "cross-env POWERPOINTER_MOCK=1 electron .",
-    "build:win": "electron-builder --win nsis --x64"
+    "build:win": "electron-builder --win nsis --x64",
+    "dist": "electron-builder --publish never"
   },
   "engines": {
     "node": ">=18"
@@ -34,30 +35,20 @@
     "electron-builder": "^26.18.0"
   },
   "build": {
-    "appId": "io.github.marthafner.powerpointer",
+    "appId": "com.github.marthafner.powerpointer",
     "productName": "PowerPointer",
     "directories": {
       "output": "dist"
     },
     "files": [
       "config/**/*",
-      "desktop/**/*",
-      "public/**/*",
+       "desktop/**/*",
       "server/**/*",
-      "LICENSE",
+      "public/**/*",
+      "config/**/*",
       "package.json"
     ],
-    "win": {
-      "icon": "desktop/assets/icon.ico",
-      "target": "nsis",
-      "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    }
+    "win": { "target": "nsis", "icon": "desktop/assets/icon.ico" },
+    "mac": { "target": "dmg", "icon": "desktop/assets/icon.png" }
   }
 }
