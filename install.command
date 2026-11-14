@@ -1,37 +1,34 @@
 #!/bin/bash
 # PowerPointer installer for macOS. Double-click to run.
 cd "$(dirname "$0")" || exit 1
-pause() { read -n 1 -s -r -p "Beliebige Taste zum Beenden …"; echo; }
+pause() { read -n 1 -s -r -p "Press any key to exit …"; echo; }
 
-echo "=== PowerPointer – Installation ==="
+echo "=== PowerPointer Installer ==="
 
 # 1. Check for Node.js
 if ! command -v node >/dev/null 2>&1; then
-  echo "Node.js wurde nicht gefunden (benötigt: Version 18 oder neuer)."
-  echo "Bitte installieren: https://nodejs.org  oder  brew install node"
+  echo "Node.js was not found (required: version 22.12 or later)."
+  echo "Install it from https://nodejs.org or run: brew install node"
   open "https://nodejs.org/en/download" 2>/dev/null
   pause; exit 1
 fi
-MAJOR=$(node -p "process.versions.node.split('.')[0]")
-if [ "$MAJOR" -lt 18 ]; then
-  echo "Node.js $(node -v) ist zu alt. Bitte Version 18 oder neuer installieren."
+if ! node -e "const [major, minor] = process.versions.node.split('.').map(Number); process.exit(major > 22 || (major === 22 && minor >= 12) ? 0 : 1)"; then
+  echo "Node.js $(node -v) is too old. Please install version 22.12 or later."
   pause; exit 1
 fi
-echo "Node.js $(node -v) gefunden."
+echo "Node.js $(node -v) found."
 
 # 2. Install dependencies
-echo "Installiere Abhängigkeiten …"
+echo "Installing dependencies …"
 if ! npm install --no-audit --no-fund; then
-  echo "Installation fehlgeschlagen. Bitte Meldung oben prüfen."
+  echo "Installation failed. Please review the message above."
   pause; exit 1
 fi
-chmod +x start.command 2>/dev/null
-
 echo
-echo "Installation abgeschlossen."
-echo "Später starten: Doppelklick auf start.command oder 'npm start'."
+echo "Installation complete."
+echo "To start later, run 'npm start'."
 echo
-read -r -p "Jetzt starten? [J/n] " ANSWER
+read -r -p "Start PowerPointer now? [Y/n] " ANSWER
 case "$ANSWER" in
   n|N) ;;
   *) npm start ;;

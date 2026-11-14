@@ -139,7 +139,7 @@ Both commands should print version numbers. If they do not, close and reopen the
    npm ci
    ```
 
-   Alternatively, double-click `install.command` in the project folder. It checks that Node.js 18 or later is installed, runs `npm install`, and offers to start PowerPointer afterwards. If macOS blocks the script because it was downloaded from the internet, right-click it, choose **Open**, and confirm.
+   Alternatively, double-click `install.command` in the project folder. It checks that Node.js 22.12 or later is installed, runs `npm install`, and offers to start PowerPointer afterwards. If macOS blocks the script because it was downloaded from the internet, right-click it, choose **Open**, and confirm.
 
 5. Start PowerPointer (this opens the desktop dashboard):
 

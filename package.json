@@ -7,14 +7,14 @@
     "powerpointer": "server/server.js"
   },
   "scripts": {
-  "start": "electron .",
-  "server": "node server/server.js",
-  "debug": "DEBUG=1 electron .",
-  "dev": "POWERPOINTER_MOCK=1 electron .",
-  "server:dev": "POWERPOINTER_MOCK=1 node server/server.js",
-  "desktop": "electron .",
-  "desktop:dev": "POWERPOINTER_MOCK=1 electron ."
-},
+    "start": "electron .",
+    "server": "node server/server.js",
+    "debug": "cross-env DEBUG=1 electron .",
+    "dev": "cross-env POWERPOINTER_MOCK=1 electron .",
+    "server:dev": "cross-env POWERPOINTER_MOCK=1 node server/server.js",
+    "desktop": "electron .",
+    "desktop:dev": "cross-env POWERPOINTER_MOCK=1 electron ."
+  },
   "engines": {
     "node": ">=18"
   },
@@ -25,9 +25,10 @@
   },
   "license": "MIT",
   "allowScripts": {
-    "electron@33.4.11": true
+    "electron@45.3.2": true
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "electron": "^45.3.2"
   }
 }
