@@ -27,15 +27,21 @@ PowerPointer turns your phone or tablet into a remote control for Microsoft Powe
 - [License](#license)
 
 ## Features
+
+### Desktop view
+<p align="center">
+   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_Desktop.png" width="300" alt="PowerPointer">
+</p>
+
 ### iPad view
 <p align="center">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0137.jpg" width="300" alt="PowerPointer">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_0138.jpg" width="300" alt="PowerPointer">
+   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_IPad.png" width="300" alt="PowerPointer">
 </p>
 
 ### iPhone view
 <p align="center">
-   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/IMG_6761.jpg" width="300" alt="PowerPointer">
+   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_Smartphone.png" width="300" alt="PowerPointer">
+   <img src="https://github.com/MartHafner/PowerPointer/blob/assets/Screenshot_PIN.png" width="300" alt="PowerPointer">
 </p>
 
 - Start and stop a presentation
