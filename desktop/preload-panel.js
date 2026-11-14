@@ -6,5 +6,6 @@ contextBridge.exposeInMainWorld('pp', {
   status: () => ipcRenderer.invoke('status'),
   qr: (url) => ipcRenderer.invoke('qr', url),
   copy: (text) => ipcRenderer.invoke('copy', text),
-  onStatus: (cb) => ipcRenderer.on('status', (_e, s) => cb(s))
+  onStatus: (cb) => ipcRenderer.on('status', (_e, s) => cb(s)),
+  fit: (height) => ipcRenderer.invoke('fit', height),
 });

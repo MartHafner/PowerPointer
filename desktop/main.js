@@ -1,7 +1,7 @@
 'use strict';
 // Electron shell for the PowerPointer server: starts the existing server in-process
 // and shows a server-side panel (status, addresses, QR code, PIN).
-const { app, BrowserWindow, ipcMain, clipboard, dialog, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, clipboard, dialog, Menu, screen } = require('electron');
 const path = require('path');
 const QRCode = require('qrcode');
 
@@ -31,7 +31,8 @@ function addresses() {
 
 function createPanel() {
   panel = new BrowserWindow({
-    width: 480, height: 640, minWidth: 420, minHeight: 560,
+    width: 480, height: 640, minWidth: 420, minHeight: 300,
+    useContentSize: true,
     title: 'PowerPointer', backgroundColor: '#0b0c12',
     webPreferences: {
       preload: path.join(__dirname, 'preload-panel.js'),
@@ -57,6 +58,13 @@ function registerIpc() {
       addresses: addresses(),
       platform: require('../server/powerpoint').platformName
     };
+  });
+  ipcMain.handle('fit', (e, height) => {
+    if (!fromPanel(e) || !panel || !Number.isFinite(height)) return;
+    // Never grow beyond the usable screen area.
+    const max = screen.getDisplayMatching(panel.getBounds()).workArea.height;
+    const [w] = panel.getContentSize();
+    panel.setContentSize(w, Math.min(Math.ceil(height), max));
   });
   ipcMain.handle('status', (e) => (fromPanel(e) ? currentStatus() : null));
   ipcMain.handle('qr', (e, url) => {
