@@ -459,7 +459,6 @@ The desktop dashboard runs in a sandboxed Electron window with context isolation
 - Notes are shown only on tablet-sized screens and only while a slide show is running.
 - The PIN is limited to four digits on the web interface.
 - No TLS; see [Network and Security](#network-and-security).
-- Some server messages (for example HTTP error texts and PIN messages in the terminal) are in German, while the web interface and dashboard are in English.
 - The `.exe` and `.dmg` installers are not code-signed or notarized, so Windows SmartScreen and macOS Gatekeeper show warnings on first launch.
 - Update behavior depends on the platform: Windows release builds update automatically when the app is quit; macOS only shows an update notice and requires manual installation. See [Updating the installed app](#updating-the-installed-app).
 
