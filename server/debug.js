@@ -32,9 +32,11 @@ function initDebug({ server, wss, isLocalClient }) {
   server.on('listening', () => log('[SERVER] Listening on', JSON.stringify(server.address())));
   server.on('close', () => log('[SERVER] Closed'));
   server.on('error', (e) => log('[SERVER] Error:', e.code || '', e.message));
-  server.on('clientError', (e, socket) =>
-    log(`[SERVER] Client error from ${socket.remoteAddress}:`, e.code || '', e.message));
-
+    server.on('clientError', (e, socket) => {
+    log(`[SERVER] Client error from ${socket.remoteAddress}:`, e.code || '', e.message);
+    if (socket.writable) socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+    else socket.destroy();
+  });
   // ---- TCP ----
   server.on('connection', (s) => {
     const id = ++connId;

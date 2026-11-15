@@ -15,7 +15,10 @@ function osa(script) {
   });
 }
 
-const tell = (body) => osa(`tell application "${APP}"\n${body}\nend tell`);
+const tell = (body) => osa(
+  `if application "${APP}" is not running then error "PowerPoint is not open"\n` +
+  `tell application "${APP}"\n${body}\nend tell`
+);
 
 module.exports = {
   next: () => tell(`go to next slide (${VIEW})`),

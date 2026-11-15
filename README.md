@@ -119,7 +119,12 @@ The `.dmg` is built on a macOS runner on GitHub and may only run on the processo
 
 ### Updating the installed app
 
-Download the newer installer from the [Releases page](https://github.com/MartHafner/PowerPointer/releases/latest) and install it over the existing version. The app does not update itself. A fixed PIN or a different port set in `config/settings.json` inside an installed app may be reset by an update, so note your settings before updating.
+The desktop app checks for updates from GitHub Releases when it starts:
+
+- **Windows:** Official release builds download updates automatically and install them when you quit PowerPointer. If an update is not applied, download and run the latest `.exe` installer from the [Releases page](https://github.com/MartHafner/PowerPointer/releases/latest).
+- **macOS:** PowerPointer notifies you when a newer release is available. Choose **Open download page**, download the latest `.dmg`, and install it manually.
+
+Windows automatic updates are only enabled in packaged builds published through the GitHub release workflow. The macOS desktop app checks GitHub Releases and shows a notice, but does not install updates automatically. Source and headless server installations must be updated manually. An update may replace settings such as a fixed PIN or custom port in the installed app; back up your settings before updating.
 
 ## Quick Start (from Source)
 
@@ -385,7 +390,7 @@ The web interface prompts for the PIN when connecting. It is stored for the curr
 |---|---|
 | `PORT` | Overrides `port` from `settings.json`. |
 | `POWERPOINTER_PIN` | Overrides `pin` from `settings.json`. Use `auto` for a random PIN or an empty value to disable PIN protection. |
-| `POWERPOINTER_MOCK` | Any non-empty value enables [demo mode](#demo-mode). |
+| `POWERPOINTER_MOCK` | Any non-empty value except `0` or `false` enables [demo mode](#demo-mode). |
 | `DEBUG` | `1` or `true` enables [debug logging](#debugging); `0` and `false` keep it off. |
 
 ### Demo Mode
@@ -456,7 +461,7 @@ The desktop dashboard runs in a sandboxed Electron window with context isolation
 - No TLS; see [Network and Security](#network-and-security).
 - Some server messages (for example HTTP error texts and PIN messages in the terminal) are in German, while the web interface and dashboard are in English.
 - The `.exe` and `.dmg` installers are not code-signed or notarized, so Windows SmartScreen and macOS Gatekeeper show warnings on first launch.
-- Installed apps do not update themselves; install newer releases manually.
+- Update behavior depends on the platform: Windows release builds update automatically when the app is quit; macOS only shows an update notice and requires manual installation. See [Updating the installed app](#updating-the-installed-app).
 
 ## Troubleshooting
 

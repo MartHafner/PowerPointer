@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const { log, dbg, initDebug, DEBUG } = require('./debug');
+const { dbg, initDebug, DEBUG } = require('./debug');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -26,6 +26,9 @@ const { generatePin } = require('./pin');
 // "auto" in settings.json (or POWERPOINTER_PIN=auto) generates a new PIN on every startup.
 const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
 const PIN = configuredPin === 'auto' ? generatePin(4) : configuredPin;
+if (PIN && !/^\d{4}$/.test(PIN)) { // PIN must be exactly 4 digits to be entered on the phone.
+  console.warn('Warning: the PIN must be exactly 4 digits, otherwise it cannot be entered on the phone.');
+}
 // Terminal UI: always when run headless (node server/server.js), inside Electron only with DEBUG.
 const TERMINAL_UI = DEBUG || !process.versions.electron;
 const POLL_MS = settings.pollIntervalMs || 1000; // Polling interval for PowerPoint status and notes if Settings.json have no args.
@@ -53,6 +56,7 @@ const server = http.createServer((req, res) => {
   let urlPath;
   try { urlPath = decodeURIComponent((req.url || '/').split('?')[0]); }
   catch { res.writeHead(400).end(); return; }
+  if (urlPath.includes('\0')) { res.writeHead(400).end(); return; }
   if (urlPath === '/') urlPath = '/index.html';
   const file = path.normalize(path.join(PUBLIC_DIR, urlPath));
   // Prevent paths such as "../..." from accessing files outside the web interface.
@@ -84,24 +88,35 @@ function safeEqual(a, b) {
   return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
 }
 
+// Upgrade-Handler
 server.on('upgrade', (req, socket, head) => {
+  socket.on('error', () => {});
   const ip = socket.remoteAddress;
   if (!isLocalClient(ip)) return socket.destroy();
-  const url = new URL(req.url, 'http://localhost');
+
+  let url;
+  try { url = new URL(req.url, 'http://localhost'); } catch { return socket.destroy(); }
   if (url.pathname !== '/ws') return socket.destroy();
+
+  // Block cross-site WebSocket hijacking: browsers always send Origin.
+  const origin = req.headers.origin;
+  if (origin) {
+    let sameHost = false;
+    try { sameHost = new URL(origin).host === req.headers.host; } catch {}
+    if (!sameHost) return socket.destroy();
+  }
 
   const supplied = url.searchParams.get('pin') || '';
   const authorized = !PIN || safeEqual(supplied, PIN);
-  // During a lockout, even the correct PIN is rejected to prevent further guessing.
   const locked = limiter.retryAfterMs(ip) > 0;
 
   if (!locked && PIN) {
-    // A connection attempt without a PIN (the initial page load) does not count as a failed attempt.
     if (authorized) limiter.registerSuccess(ip);
     else if (supplied) limiter.registerFailure(ip);
   }
 
   wss.handleUpgrade(req, socket, head, (ws) => {
+    ws.on('error', () => {});               // MUST come before close(), otherwise a crash is possible
     if (locked) return ws.close(4029, 'Zu viele Versuche');
     if (!authorized) return ws.close(4001, 'PIN erforderlich');
     wss.emit('connection', ws);
@@ -172,7 +187,15 @@ wss.on('connection', (ws) => {
 setInterval(poll, POLL_MS);
 poll();
 
+if (!process.versions.electron) {
+  server.on('error', (e) => {
+    console.error(e.code === 'EADDRINUSE' ? `Port ${PORT} is already in use.` : e.message);
+    process.exit(1);
+  });
+}
+
 server.listen(PORT, HOST, () => {
+  // Show the server info in the terminal only when run headless (node server/server.js) or with DEBUG.
   if (!TERMINAL_UI) return;
   console.log(`\nPowerPointer is working (Operating System: ${powerpoint.platformName})`);
   console.log('type following URL into your Phone browser:');

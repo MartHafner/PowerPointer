@@ -10,17 +10,26 @@
 
   let ws = null, state = null, clockOffset = 0, retry = 0, wakeLock = null;
   let pin = sessionStorage.getItem('pp-pin') || '';
+  let retryTimer = null;
   els.host.textContent = location.hostname;
 
   function connect() {
+    if (ws && ws.readyState <= 1) return;          // already connected/connecting
+    clearTimeout(retryTimer);
+    retryTimer = null;
+
     const usedPin = pin;
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    ws = new WebSocket(`${proto}://${location.host}/ws?pin=${encodeURIComponent(usedPin)}`);
-    ws.onopen = () => { retry = 0; setConn('ok', 'Connected'); };
-    ws.onmessage = (e) => {
+    const sock = new WebSocket(`${proto}://${location.host}/ws?pin=${encodeURIComponent(usedPin)}`);
+    ws = sock;
+    setConn('warn', 'Connecting …');
+
+    sock.onmessage = (e) => {
+      if (sock !== ws) return;                     // ignore stale sockets
       const msg = JSON.parse(e.data);
       if (msg.type === 'state') {
-        // Only authorized clients receive state: PIN accepted, unlock the page.
+        retry = 0;
+        setConn('ok', 'Connected');                // only now, after successful auth
         if (usedPin) sessionStorage.setItem('pp-pin', usedPin);
         els.pinDialog.hidden = true;
         clockOffset = msg.serverTime - Date.now();
@@ -30,7 +39,9 @@
         toast(msg.message);
       }
     };
-    ws.onclose = (e) => {
+
+    sock.onclose = (e) => {
+      if (sock !== ws) return;
       if (e.code === 4001 || e.code === 4029) {
         sessionStorage.removeItem('pp-pin');
         pin = '';
@@ -45,8 +56,7 @@
         return;
       }
       setConn('bad', 'Disconnected');
-      // Retry transient connection failures with an increasing delay.
-      setTimeout(connect, Math.min(5000, 500 * 2 ** retry++));
+      retryTimer = setTimeout(connect, Math.min(5000, 500 * 2 ** retry++));
     };
   }
 
@@ -72,10 +82,10 @@
 
   function render() {
     if (!state) return;
-    const running = state.state === 'running';
+    const running = state.connected && state.state === 'running';
     els.slide.textContent = running ? state.slide : '–';
     els.total.textContent = state.total || '–';
-    els.start.disabled = running;
+    els.start.disabled = !(state.connected && state.state === 'idle');
     els.stop.disabled = !running;
     els.blank.disabled = !running;
     els.blank.classList.toggle('on', running && state.blank);
@@ -148,7 +158,7 @@
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
       keepAwake();
-      if (!ws || ws.readyState > 1) connect();
+        if (els.pinDialog.hidden) connect();   // connect() guards against duplicates itself
     }
   });
   document.addEventListener('click', keepAwake, { once: true });

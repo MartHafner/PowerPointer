@@ -18,7 +18,8 @@ function createMock() {
 
 // Select the implementation for the current platform.
 function loadPlatform() {
-  if (process.env.POWERPOINTER_MOCK) return { name: 'Demo-Modus', impl: createMock() };
+  const mock = (process.env.POWERPOINTER_MOCK || '').toLowerCase();
+  if (mock && !['0', 'false'].includes(mock)) return { name: 'Demo-Modus', impl: createMock() };
   if (process.platform === 'darwin') return { name: 'macOS', impl: require('./platforms/macos') };
   if (process.platform === 'win32') return { name: 'Windows', impl: require('./platforms/windows') };
   // Keep the server usable with the simulator on other operating systems.

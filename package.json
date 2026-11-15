@@ -46,7 +46,6 @@
       "desktop/**/*",
       "server/**/*",
       "public/**/*",
-      "config/**/*",
       "package.json"
     ],
     "publish": [
@@ -57,8 +56,11 @@
       "icon": "desktop/assets/icon.ico"
     },
     "mac": {
-      "target": "dmg",
-      "icon": "desktop/assets/icon.png"
+      "target": [{ "target": "dmg", "arch": ["universal"] }],
+      "icon": "desktop/assets/icon.png",
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "PowerPointer needs to control Microsoft PowerPoint to change slides."
+      }
     }
   }
 }

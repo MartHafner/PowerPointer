@@ -7,8 +7,8 @@ function getLocalAddresses() {
   for (const [name, list] of Object.entries(os.networkInterfaces())) {
     // An interface may have no addresses, for example when it is disconnected.
     for (const info of list || []) {
-      if (info.family === 'IPv4' && !info.internal) {
-        result.push({ name, address: info.address });
+        if ((info.family === 'IPv4' || info.family === 4) && !info.internal) {
+          result.push({ name, address: info.address });
       }
     }
   }

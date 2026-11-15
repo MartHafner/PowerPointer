@@ -2,7 +2,6 @@
 const { execFile } = require('child_process');
 
 // Get the running PowerPoint instance; return a valid fallback output if it is unavailable.
-// Get the running PowerPoint instance; return a valid fallback output if it is unavailable.
 const prelude = (offOutput) =>
   // Emit UTF-8 without BOM so that umlauts survive the trip to Node.js.
   `[Console]::OutputEncoding=New-Object System.Text.UTF8Encoding $false;` +
