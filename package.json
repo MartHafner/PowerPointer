@@ -1,6 +1,6 @@
 {
   "name": "powerpointer",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "The local PowerPoint remote control for iPhone, macOS and Windows.",
   "main": "desktop/main.js",
   "bin": {
@@ -21,6 +21,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "electron-updater": "^6.8.11",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "ws": "^8.18.0"
@@ -42,13 +43,22 @@
     },
     "files": [
       "config/**/*",
-       "desktop/**/*",
+      "desktop/**/*",
       "server/**/*",
       "public/**/*",
       "config/**/*",
       "package.json"
     ],
-    "win": { "target": "nsis", "icon": "desktop/assets/icon.ico" },
-    "mac": { "target": "dmg", "icon": "desktop/assets/icon.png" }
+    "publish": [
+        { "provider": "github", "owner": "MartHafner", "repo": "PowerPointer" }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "desktop/assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "desktop/assets/icon.png"
+    }
   }
 }

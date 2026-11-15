@@ -4,7 +4,8 @@
 const { app, BrowserWindow, ipcMain, clipboard, dialog, Menu, screen } = require('electron');
 const path = require('path');
 const QRCode = require('qrcode');
-
+const { initAutoUpdate } = require('./updater'); // updater only for Windows
+const { checkForUpdateNotice } = require('./update-notice'); // update notice only for macOS
 let srv = null;   // exports of server/server.js
 let panel = null;
 let pushTimer = null;
@@ -91,6 +92,8 @@ if (!app.requestSingleInstanceLock()) {
     startServer();
     registerIpc();
     createPanel();
+    initAutoUpdate(); // only for Windows
+    checkForUpdateNotice(); // only for MacOS
     pushTimer = setInterval(() => {
       if (panel && !panel.isDestroyed()) panel.webContents.send('status', currentStatus());
     }, 1000);
