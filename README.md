@@ -236,16 +236,14 @@ You can download the project without installing Git:
 
 | Command | What it does |
 |---|---|
-| `npm start` | Starts the desktop app (Electron dashboard) and the server. Terminal output appears only when `DEBUG` is set. |
-| `npm run desktop` | Same as `npm start`. |
+| `npm start` | Starts the desktop app and the server. Terminal output appears only when `DEBUG` is set. |
 | `npm run server` | Starts only the server without a dashboard. Prints addresses, a QR code, and the PIN in the terminal. |
 | `npm run dev` | `npm start` in [demo mode](#demo-mode). |
-| `npm run desktop:dev` | Same as `npm run dev`. |
 | `npm run server:dev` | `npm run server` in demo mode. |
 | `npm run debug` | `npm start` with [debug logging](#debugging). |
 | `npm run build:win` | Builds the Windows NSIS installer (x64) into `dist/`. See [Build Installers](#build-installers). |
 | `npm run dist` | Builds installers for the current operating system into `dist/` without publishing. |
-| `node server/pin.js` | Prints a freshly generated random four-digit PIN (helper for choosing a fixed PIN). |
+| `npm run passcode` | Prints a freshly generated random four-digit PIN (helper for choosing a fixed PIN). |
 
 The package also registers a `powerpointer` binary that points to `server/server.js`, so the headless server can be started as a command when the package is installed globally or linked.
 

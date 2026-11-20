@@ -15,7 +15,8 @@
     "desktop": "electron .",
     "desktop:dev": "cross-env POWERPOINTER_MOCK=1 electron .",
     "build:win": "electron-builder --win nsis --x64",
-    "dist": "electron-builder --publish never"
+    "dist": "electron-builder --publish never",
+    "passcode": "node server/pin.js"
   },
   "engines": {
     "node": ">=18"
