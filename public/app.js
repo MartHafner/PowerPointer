@@ -1,4 +1,5 @@
 'use strict';
+//v2.1.0
 (() => {
   const $ = (id) => document.getElementById(id);
   const els = {
