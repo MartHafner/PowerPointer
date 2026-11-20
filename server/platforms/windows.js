@@ -9,8 +9,7 @@ const prelude = (offOutput) =>
   `try { $ppt=[Runtime.InteropServices.Marshal]::GetActiveObject('PowerPoint.Application') } ` +
   `catch { Write-Output '${offOutput}'; exit 0 };`;
 
-const OFF_STATUS = '{"state":"off","slide":0,"total":0,"blank":false}';
-const OFF_NOTES = '{"notes":""}';
+const OFF_STATUS = '{"state":"off","slide":0,"total":0,"blank":false,"notes":""}';
 
 function ps(body, offOutput = OFF_STATUS) {
   return new Promise((resolve, reject) => {
@@ -37,31 +36,25 @@ module.exports = {
   stop: () => ps(`${WIN}$w.View.Exit()`),
   // ppSlideShowRunning = 1; ppSlideShowBlackScreen = 3.
   blank: () => ps(`${WIN}if($w.View.State -eq 3){$w.View.State=1}else{$w.View.State=3}`),
-  async status() {
+  async snapshot(previousSlide) {
+    const previous = Number.isInteger(previousSlide) ? previousSlide : -1;
     const out = await ps(
       // There is no active slide when no presentation or slide show is open.
-      `if($ppt.Presentations.Count -eq 0){Write-Output '{"state":"idle","slide":0,"total":0,"blank":false}';exit 0};` +
+      `if($ppt.Presentations.Count -eq 0){Write-Output '{"state":"idle","slide":0,"total":0,"blank":false,"notes":""}';exit 0};` +
       `$total=$ppt.ActivePresentation.Slides.Count;` +
       `if($ppt.SlideShowWindows.Count -eq 0){` +
-      `([pscustomobject]@{state='idle';slide=0;total=$total;blank=$false}|ConvertTo-Json -Compress);exit 0};` +
+      `([pscustomobject]@{state='idle';slide=0;total=$total;blank=$false;notes=''}|ConvertTo-Json -Compress);exit 0};` +
       `$v=$ppt.SlideShowWindows.Item(1).View;` +
-      `([pscustomobject]@{state='running';slide=[int]$v.CurrentShowPosition;total=$total;blank=($v.State -eq 3)}|ConvertTo-Json -Compress)`
+      `$slide=[int]$v.CurrentShowPosition;$notes=$null;` +
+      `if($slide -ne ${previous}){$notes='';try{foreach($sh in $v.Slide.NotesPage.Shapes){` +
+      `if($sh.Type -eq 14 -and $sh.PlaceholderFormat.Type -eq 2 -and $sh.HasTextFrame){$notes=$sh.TextFrame.TextRange.Text}}}catch{$notes=''}};` +
+      `([pscustomobject]@{state='running';slide=$slide;total=$total;blank=($v.State -eq 3);notes=$notes}|ConvertTo-Json -Compress)`
     );
-    return JSON.parse(out);
-  },
-  // Speaker notes of the slide currently shown in the slide show ('' if none).
-  async notes() {
-    const out = await ps(
-      `if($ppt.SlideShowWindows.Count -eq 0){Write-Output '${OFF_NOTES}';exit 0};` +
-      `$s=$ppt.SlideShowWindows.Item(1).View.Slide;` +
-      `$t='';` +
-      `foreach($sh in $s.NotesPage.Shapes){` +
-      // Type 14 = placeholder; PlaceholderFormat.Type 2 = notes body text.
-      `if($sh.Type -eq 14 -and $sh.PlaceholderFormat.Type -eq 2 -and $sh.HasTextFrame){$t=$sh.TextFrame.TextRange.Text}};` +
-      `([pscustomobject]@{notes=$t}|ConvertTo-Json -Compress)`,
-      OFF_NOTES
-    );
+    const snapshot = JSON.parse(out);
     // PowerPoint separates paragraphs with \r; normalize for the browser.
-    return JSON.parse(out).notes.replace(/\r\n?|\u000b/g, '\n');
+    if (typeof snapshot.notes === 'string') {
+      snapshot.notes = snapshot.notes.replace(/\r\n?|\u000b/g, '\n');
+    }
+    return snapshot;
   }
 };

@@ -360,7 +360,7 @@ Status messages:
 | PowerPoint is not open | PowerPoint is not running. |
 | PowerPoint not reachable / Error: … | The server could not talk to PowerPoint, for example because of missing permissions. |
 
-The server checks PowerPoint's status every 500 milliseconds (twice per second) by default. If the connection is lost, the web interface automatically tries to reconnect with an increasing delay (up to 5 seconds).
+While a presentation is running and a client is connected, the server checks PowerPoint's status every 500 milliseconds by default. It polls every 1.5 seconds when no presentation is running and every 3 seconds when no clients are connected. The first two consecutive PowerPoint polling errors are ignored; after that, polling backs off up to 5 seconds. If the WebSocket connection is lost, the web interface automatically tries to reconnect with an increasing delay (up to 5 seconds).
 
 ## Configuration
 
@@ -371,7 +371,7 @@ Settings are stored in [`config/settings.json`](config/settings.json):
 | `port` | `8787` | HTTP and WebSocket port |
 | `host` | `0.0.0.0` | Network address the server listens on |
 | `pin` | `"auto"` | Generate a random four-digit PIN when the server starts; set to `""` to disable PIN protection |
-| `pollIntervalMs` | `500` | Interval between PowerPoint status checks, in milliseconds (if the setting is missing, the server falls back to 1000) |
+| `pollIntervalMs` | `500` | Active-presentation polling interval in milliseconds (minimum 250; defaults to 1000 if missing or invalid) |
 
 The generated PIN is shown in the desktop dashboard (or printed in the terminal when running `npm run server`) and remains valid until the server stops. Set `pin` to a fixed value to use a custom PIN. The web interface only accepts exactly four digits, so a fixed PIN must consist of four digits (for example `"1234"`); longer or non-numeric PINs cannot be entered on the phone. Example for PowerShell:
 

@@ -13,6 +13,8 @@ const timestamp = () => {
 
 const log = (...a) => console.log(timestamp(), ...a);
 const dbg = (...a) => { if (DEBUG) log('[debug]', ...a); };
+const debugPollFailure = (failures, error) =>
+  dbg(`[POLL] Error (${failures} consecutive):`, error.message);
 
 // The PIN is part of the WebSocket URL and must not end up in the log.
 const maskPin = (url = '') => url.replace(/([?&]pin=)[^&]*/i, '$1***');
@@ -32,7 +34,7 @@ function initDebug({ server, wss, isLocalClient }) {
   server.on('listening', () => log('[SERVER] Listening on', JSON.stringify(server.address())));
   server.on('close', () => log('[SERVER] Closed'));
   server.on('error', (e) => log('[SERVER] Error:', e.code || '', e.message));
-    server.on('clientError', (e, socket) => {
+  server.on('clientError', (e, socket) => {
     log(`[SERVER] Client error from ${socket.remoteAddress}:`, e.code || '', e.message);
     if (socket.writable) socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     else socket.destroy();
@@ -70,4 +72,4 @@ function initDebug({ server, wss, isLocalClient }) {
   });
 }
 
-module.exports = { DEBUG, log, dbg, initDebug };
+module.exports = { DEBUG, log, dbg, debugPollFailure, initDebug };

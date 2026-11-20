@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const { dbg, initDebug, DEBUG } = require('./debug');
+const { debugPollFailure, initDebug, DEBUG } = require('./debug');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -32,7 +32,10 @@ if (PIN && !/^\d{4}$/.test(PIN)) { // The client UI expects a four-digit PIN.
 }
 // Display terminal diagnostics in headless mode or when Electron debug mode is enabled.
 const TERMINAL_UI = DEBUG || !process.versions.electron;
-const POLL_MS = settings.pollIntervalMs || 1000;
+const configuredPollMs = Number(settings.pollIntervalMs);
+const POLL_MS = Number.isFinite(configuredPollMs) && configuredPollMs > 0
+  ? Math.max(250, configuredPollMs)
+  : 1000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 const MIME = {
@@ -125,16 +128,11 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 let state = { connected: false, state: 'off', slide: 0, total: 0, blank: false, notes: '', startedAt: null, error: null };
-let polling = false;
+let polling = false, failures = 0;
 
 function broadcast() {
   const msg = JSON.stringify({ type: 'state', data: state, serverTime: Date.now() });
   for (const ws of wss.clients) if (ws.readyState === 1) ws.send(msg);
-}
-
-// Notes must never break the status poll.
-async function loadNotes() {
-  try { return await powerpoint.getNotes(); } catch { return ''; }
 }
 
 async function poll() {
@@ -142,16 +140,12 @@ async function poll() {
   if (polling) return;
   polling = true;
   try {
-    const s = await powerpoint.getStatus();
+    const s = await powerpoint.getSnapshot(state.state === 'running' ? state.slide : null);
+    failures = 0;
     const running = s.state === 'running';
     // Preserve the start time while the same presentation remains active.
     const startedAt = running ? (state.startedAt || Date.now()) : null;
-    // Only query the notes when the slide changed or the show just started.
-    let notes = '';
-    if (running) {
-      const slideChanged = s.slide !== state.slide || state.state !== 'running';
-      notes = slideChanged ? await loadNotes() : state.notes;
-    }
+    const notes = running ? (s.notes ?? state.notes) : '';
     const next = { connected: true, ...s, notes, startedAt, error: null };
     // Compare whether a start time exists; its millisecond value itself does not change.
     const changed = JSON.stringify({ ...next, startedAt: !!startedAt }) !==
@@ -159,10 +153,15 @@ async function poll() {
     state = next;
     if (changed) broadcast();
   } catch (e) {
-    if (state.error !== e.message) {
+    failures++;
+    if (failures < 3) {
+      debugPollFailure(failures, e);
+      return;
+    }
+    if (state.error !== e.message || state.connected) {
       state = { ...state, connected: false, error: e.message };
       broadcast();
-      dbg('[POLL] Fehler:', e.message);
+      debugPollFailure(failures, e);
     }
   } finally {
     polling = false;
@@ -177,7 +176,7 @@ wss.on('connection', (ws) => {
   ws.on('message', async (raw) => {
     let msg;
     try { msg = JSON.parse(raw.toString()); } catch { return; }
-    if (msg.type !== 'command') return;
+    if (!msg || typeof msg !== 'object' || msg.type !== 'command') return;
     try {
       await powerpoint.run(msg.command);
       await poll();
@@ -188,6 +187,7 @@ wss.on('connection', (ws) => {
   ws.on('error', () => {});
 });
 
+// Terminate WebSocket connections that do not respond to pings within 30 seconds.
 setInterval(() => {
   for (const ws of wss.clients) {
     if (!ws.isAlive) { ws.terminate(); continue; }
@@ -195,15 +195,14 @@ setInterval(() => {
   }
 }, 30000).unref();
 
-let failures = 0, timer = null;
-
+// Poll less often when idle or no clients are connected, and back off after repeated errors.
 const delay = () =>
   failures ? Math.min(5000, POLL_MS * 2 ** failures)
   : wss.clients.size === 0 ? 3000
   : state.state === 'running' ? POLL_MS
   : Math.max(POLL_MS, 1500);
 
-async function loop() { await poll(); timer = setTimeout(loop, delay()); }
+async function loop() { await poll(); setTimeout(loop, delay()); }
 loop().catch((e) => { console.error(e); process.exit(1); });
 
 if (!process.versions.electron) {

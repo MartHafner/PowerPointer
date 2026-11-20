@@ -11,8 +11,12 @@ function createMock() {
     start: async () => { m.state = 'running'; m.slide = 1; m.blank = false; },
     stop: async () => { m.state = 'idle'; m.blank = false; },
     blank: async () => { if (m.state === 'running') m.blank = !m.blank; },
-    status: async () => ({ ...m }),
-    notes: async () => `Demo-Notiz zu Folie ${m.slide}\nZweite Zeile der Notiz.`
+    snapshot: async (previousSlide) => ({
+      ...m,
+      notes: m.state !== 'running' ? ''
+        : m.slide === previousSlide ? null
+        : `Demo-Notiz zu Folie ${m.slide}\nZweite Zeile der Notiz.`
+    })
   };
 }
 
@@ -38,7 +42,11 @@ async function run(command) {
   await impl[command]();
 }
 
-const getStatus = () => impl.status();
-const getNotes = () => impl.notes();
+const getSnapshot = (previousSlide) => impl.snapshot(previousSlide);
+const getStatus = async () => {
+  const { notes, ...status } = await getSnapshot(null);
+  return status;
+};
+const getNotes = async () => (await getSnapshot(null)).notes || '';
 
-module.exports = { run, getStatus, getNotes, platformName, COMMANDS };
+module.exports = { run, getSnapshot, getStatus, getNotes, platformName, COMMANDS };
