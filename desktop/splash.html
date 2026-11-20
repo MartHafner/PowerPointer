@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PowerPointer</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      display: grid;
+      place-items: center;
+      background: #0b0c12;
+      color: #f4f5f8;
+      font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-app-region: drag;
+    }
+    main { width: 100%; padding: 32px 38px; }
+    h1 { margin: 0; font-size: 24px; font-weight: 700; }
+    p { margin: 6px 0 22px; color: #8e95a8; font-size: 13px; }
+    .track { height: 6px; overflow: hidden; border-radius: 999px; background: #242530; }
+    .bar {
+      width: 38%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ff7a1a, #f0432a, #a855f7);
+      animation: loading 1.25s ease-in-out infinite;
+    }
+    @keyframes loading {
+      from { transform: translateX(-110%); }
+      to { transform: translateX(280%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bar { width: 100%; animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>PowerPointer</h1>
+    <p>Starting the app…</p>
+    <div class="track" role="progressbar" aria-label="Loading PowerPointer">
+      <div class="bar"></div>
+    </div>
+  </main>
+</body>
+</html>

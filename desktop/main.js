@@ -8,7 +8,9 @@ const { initAutoUpdate } = require('./updater'); // updater only for Windows
 const { checkForUpdateNotice } = require('./update-notice'); // update notice only for macOS
 let srv = null;   // exports of server/server.js
 let panel = null;
+let splash = null;
 let pushTimer = null;
+let startupStarted = false;
 
 function startServer() {
   srv = require('../server/server');
@@ -34,6 +36,7 @@ function createPanel() {
   panel = new BrowserWindow({
     width: 480, height: 640, minWidth: 420, minHeight: 300,
     useContentSize: true,
+    show: false,
     title: 'PowerPointer', backgroundColor: '#0b0c12',
     icon: path.join(__dirname, 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     webPreferences: {
@@ -43,14 +46,55 @@ function createPanel() {
   });
   panel.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   panel.webContents.on('will-navigate', (e) => e.preventDefault());
-  panel.loadFile(path.join(__dirname, 'panel.html'));
+  panel.loadFile(path.join(__dirname, 'panel.html')).catch((error) => {
+    dialog.showErrorBox('PowerPointer', `Unable to load the dashboard: ${error.message}`);
+    app.quit();
+  });
   panel.on('closed', () => { panel = null; });
+}
+
+function startApplication() {
+  if (startupStarted) return;
+  startupStarted = true;
+
+  startServer();
+  registerIpc();
+  createPanel();
+  initAutoUpdate();
+  checkForUpdateNotice();
+  pushTimer = setInterval(() => {
+    if (panel && !panel.isDestroyed()) panel.webContents.send('status', currentStatus());
+  }, 1000);
+}
+
+function createSplash() {
+  splash = new BrowserWindow({
+    width: 380, height: 190,
+    frame: false, resizable: false, center: true, show: false,
+    backgroundColor: '#0b0c12',
+    webPreferences: { contextIsolation: true, sandbox: true, nodeIntegration: false }
+  });
+  splash.on('closed', () => { splash = null; });
+  splash.once('ready-to-show', () => {
+    splash.show();
+    setImmediate(startApplication);
+  });
+  splash.loadFile(path.join(__dirname, 'splash.html')).catch((error) => {
+    console.error('[startup] Unable to load splash screen:', error);
+    if (splash && !splash.isDestroyed()) splash.close();
+    startApplication();
+  });
 }
 
 const fromPanel = (e) => panel && e.sender === panel.webContents;
 const currentStatus = () => ({ ...srv.getState(), clients: srv.wss.clients.size });
 
 function registerIpc() {
+  ipcMain.on('panel-ready', (e) => {
+    if (!fromPanel(e)) return;
+    if (splash && !splash.isDestroyed()) splash.close();
+    if (panel && !panel.isDestroyed()) panel.show();
+  });
   ipcMain.handle('info', (e) => {
     if (!fromPanel(e)) return null;
     return {
@@ -80,7 +124,14 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    if (!panel) return createPanel();
+    if (!panel) {
+      if (splash && !splash.isDestroyed()) {
+        if (splash.isMinimized()) splash.restore();
+        splash.focus();
+        return;
+      }
+      return createPanel();
+    }
     if (panel.isMinimized()) panel.restore();
     panel.focus();
   });
@@ -89,14 +140,7 @@ if (!app.requestSingleInstanceLock()) {
     // Windows/Linux: remove the default File/Edit/View/Window menu bar.
     if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
 
-    startServer();
-    registerIpc();
-    createPanel();
-    initAutoUpdate(); // only for Windows
-    checkForUpdateNotice(); // only for MacOS
-    pushTimer = setInterval(() => {
-      if (panel && !panel.isDestroyed()) panel.webContents.send('status', currentStatus());
-    }, 1000);
+    createSplash();
   });
   // macOS: closing the window keeps the server running; Cmd+Q stops it.
   app.on('activate', () => { if (app.isReady() && !panel) createPanel(); });

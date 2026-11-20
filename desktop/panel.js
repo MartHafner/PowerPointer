@@ -45,9 +45,9 @@
     window.pp.onStatus(renderStatus);
 
     // Natural content height (the body itself is stretched to 100%, so measure its children).
-    window.pp.fit(document.querySelector('header').offsetHeight +
-                document.querySelector('main').offsetHeight);
+    await window.pp.fit(document.querySelector('header').offsetHeight +
+                        document.querySelector('main').offsetHeight);
   }
 
-  init();
+  init().finally(() => window.pp.ready());
 })();
