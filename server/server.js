@@ -12,10 +12,11 @@ const limiter = require('./ratelimit');
 const { getLocalAddresses, isLocalClient } = require('./network');
 const powerpoint = require('./powerpoint');
 
-// Terminal QR code (optional; the server still works if the package is unavailable).
+// The QR code package is optional; the server can run without terminal QR rendering.
 let qrcode = null;
 try { qrcode = require('qrcode-terminal'); } catch {}
 
+// Load static server settings before initializing the HTTP and WebSocket transports.
 const settings = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'config', 'settings.json'), 'utf8')
 );
@@ -23,15 +24,15 @@ const PORT = Number(process.env.PORT) || settings.port || 8787;
 const HOST = settings.host || '0.0.0.0';
 const { generatePin } = require('./pin');
 
-// "auto" in settings.json (or POWERPOINTER_PIN=auto) generates a new PIN on every startup.
+// "auto" in settings.json or the POWERPOINTER_PIN environment variable generates a new PIN at startup.
 const configuredPin = String(process.env.POWERPOINTER_PIN ?? settings.pin ?? '');
 const PIN = configuredPin === 'auto' ? generatePin(4) : configuredPin;
-if (PIN && !/^\d{4}$/.test(PIN)) { // PIN must be exactly 4 digits to be entered on the phone.
+if (PIN && !/^\d{4}$/.test(PIN)) { // The client UI expects a four-digit PIN.
   console.warn('Warning: the PIN must be exactly 4 digits, otherwise it cannot be entered on the phone.');
 }
-// Terminal UI: always when run headless (node server/server.js), inside Electron only with DEBUG.
+// Display terminal diagnostics in headless mode or when Electron debug mode is enabled.
 const TERMINAL_UI = DEBUG || !process.versions.electron;
-const POLL_MS = settings.pollIntervalMs || 1000; // Polling interval for PowerPoint status and notes if Settings.json have no args.
+const POLL_MS = settings.pollIntervalMs || 1000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
 const MIME = {
@@ -43,7 +44,7 @@ const MIME = {
   '.json': 'application/json; charset=utf-8'
 };
 
-// ---------- HTTP: static web interface ----------
+// Serve the browser interface over HTTP and restrict file access to the public directory.
 const server = http.createServer((req, res) => {
   if (!isLocalClient(req.socket.remoteAddress)) {
     res.writeHead(403).end('Nur im lokalen Netzwerk erreichbar.');
@@ -78,17 +79,17 @@ const server = http.createServer((req, res) => {
   });
 });
 
-// ---------- WebSocket: commands and status ----------
+// Accept WebSocket connections on an upgraded HTTP connection.
 const wss = new WebSocketServer({ noServer: true, maxPayload: 1024 });
 initDebug({ server, wss, isLocalClient });
 
+// Compare credentials using a constant-time operation when both values have equal lengths.
 function safeEqual(a, b) {
   const ba = Buffer.from(a), bb = Buffer.from(b);
-  // Check lengths first because timingSafeEqual requires buffers of equal length.
   return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
 }
 
-// Upgrade-Handler
+// Validate local-network access, origin, and PIN credentials before upgrading to WebSocket.
 server.on('upgrade', (req, socket, head) => {
   socket.on('error', () => {});
   const ip = socket.remoteAddress;
@@ -116,7 +117,7 @@ server.on('upgrade', (req, socket, head) => {
   }
 
   wss.handleUpgrade(req, socket, head, (ws) => {
-    ws.on('error', () => {});               // MUST come before close(), otherwise a crash is possible
+    ws.on('error', () => {}); // Register an error handler before closing the upgraded socket.
     if (locked) return ws.close(4029, 'Zu viele Versuche');
     if (!authorized) return ws.close(4001, 'PIN erforderlich');
     wss.emit('connection', ws);
@@ -169,6 +170,9 @@ async function poll() {
 }
 
 wss.on('connection', (ws) => {
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
+  poll(); // Immediately send the current state to the newly connected client.
   ws.send(JSON.stringify({ type: 'state', data: state, serverTime: Date.now() }));
   ws.on('message', async (raw) => {
     let msg;
@@ -184,8 +188,23 @@ wss.on('connection', (ws) => {
   ws.on('error', () => {});
 });
 
-setInterval(poll, POLL_MS);
-poll();
+setInterval(() => {
+  for (const ws of wss.clients) {
+    if (!ws.isAlive) { ws.terminate(); continue; }
+    ws.isAlive = false; ws.ping();
+  }
+}, 30000).unref();
+
+let failures = 0, timer = null;
+
+const delay = () =>
+  failures ? Math.min(5000, POLL_MS * 2 ** failures)
+  : wss.clients.size === 0 ? 3000
+  : state.state === 'running' ? POLL_MS
+  : Math.max(POLL_MS, 1500);
+
+async function loop() { await poll(); timer = setTimeout(loop, delay()); }
+loop().catch((e) => { console.error(e); process.exit(1); });
 
 if (!process.versions.electron) {
   server.on('error', (e) => {
